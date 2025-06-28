@@ -1,0 +1,11 @@
+POST http://localhost:8080/api/v1/promotions
+Content-Type: application/json
+Authorization : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVhM2FjOTBmMmFmNzNlYzkyNjVhZGYiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUwODI1OTQ5LCJleHAiOjE3NTA5MTIzNDl9.m4ARVV2M5NJqvk2RoPxmpZGYSGpq5JmPB0glmTZzpx0
+
+{
+  "code": "SUMMER50",
+  "type": "percent",
+  "value": 50,
+  "expiredAt": "2025-07-31T23:59:59.000Z",
+  "description": "Giảm giá mùa hè 50% cho mọi đơn hàng"
+}

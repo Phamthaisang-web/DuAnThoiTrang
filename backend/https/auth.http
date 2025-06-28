@@ -1,0 +1,10 @@
+POST http://localhost:8080/api/v1/login
+Content-Type: application/json
+
+{
+    "email": "phamthaisang1710@gmail.com",
+    "password": "123456"
+}
+### get
+GET http://localhost:8080/api/v1/get-profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODQwMzcwYjgwNjVkYjJmNjVlOTgwMmQiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUwNzQxOTMxLCJleHAiOjE3NTA4MjgzMzF9.shzCZKnEdFg9vT9ZVZ5LRXzjungUJjrEdHLRP9A-OJE

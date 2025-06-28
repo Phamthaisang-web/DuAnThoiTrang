@@ -1,0 +1,22 @@
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVhM2FjOTBmMmFmNzNlYzkyNjVhZGYiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUwODI1OTQ5LCJleHAiOjE3NTA5MTIzNDl9.m4ARVV2M5NJqvk2RoPxmpZGYSGpq5JmPB0glmTZzpx0
+
+{
+  "items": [
+    {
+      "product": "6857cd8e61763774bcf918e4",
+      "quantity": 2,
+      "price": 150000,
+      "size": "M",
+      "color": "black"
+    },
+    {
+      "product": "6857cd8e61763774bcf918e4",
+      "quantity": 1,
+      "price": 200000,
+      "size": "L",
+      "color": "white"
+    }
+  ]
+}
