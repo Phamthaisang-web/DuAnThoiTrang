@@ -5,7 +5,8 @@ import validateSchemaYup from "../middlewares/validate.middleware";
 import { authenticateToken } from "../middlewares/auth.middleware";
 const router = express.Router();
 router.get("/orders", authenticateToken, ordersController.getAllOrders);
-router.get("/order/:id", authenticateToken, ordersController.getByID);
+router.get("/orders/me", authenticateToken, ordersController.getMyOrders);
+router.get("/orders/:id", authenticateToken, ordersController.getByID);
 router.post(
   "/orders",
   authenticateToken,
@@ -13,12 +14,12 @@ router.post(
   ordersController.create
 );
 router.put(
-  "/order/:id",
+  "/orders/:id",
   authenticateToken,
   validateSchemaYup(ordersValidation.orderUpdateSchema),
   ordersController.update
 );
-router.delete("/order/:id", authenticateToken, ordersController.remove);
+router.delete("/orders/:id", authenticateToken, ordersController.remove);
 router.get(
   "/orders/user/:userId",
   authenticateToken,

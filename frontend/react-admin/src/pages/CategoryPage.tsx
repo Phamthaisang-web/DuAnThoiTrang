@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -11,68 +11,70 @@ import {
   message,
   Typography,
   Select,
-} from "antd"
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
   AppstoreOutlined,
-} from "@ant-design/icons"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../stores/useAuthStore"
+} from "@ant-design/icons";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
 
-const { Title } = Typography
-const { Search } = Input
-const { Option } = Select
+const { Title } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 interface Category {
-  _id: string
-  name: string
-  description: string
-  parent?: Category | null
-  createdAt: string
-  updatedAt: string
+  _id: string;
+  name: string;
+  description: string;
+  parent?: Category | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const CategoryPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { tokens } = useAuthStore()
-  const [form] = Form.useForm()
+  const navigate = useNavigate();
+  const { tokens } = useAuthStore();
+  const [form] = Form.useForm();
 
-  const [categories, setCategories] = useState<Category[]>([])
-  const [parentCategories, setParentCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [parentCategories, setParentCategories] = useState<Category[]>([]);
 
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [pagination, setPagination] = useState({
     totalRecord: 0,
     limit: 10,
     page: 1,
-  })
+  });
 
   useEffect(() => {
     if (!tokens?.accessToken) {
-      message.warning("Vui lòng đăng nhập")
-      navigate("/login")
+      message.warning("Vui lòng đăng nhập");
+      navigate("/login");
     }
-  }, [tokens, navigate])
+  }, [tokens, navigate]);
 
   useEffect(() => {
     if (tokens?.accessToken) {
-      fetchCategories()
+      fetchCategories();
     }
-  }, [tokens?.accessToken, pagination.page, pagination.limit])
+  }, [tokens?.accessToken, pagination.page, pagination.limit]);
 
   const fetchCategories = async (search = searchTerm) => {
-    if (!tokens?.accessToken) return
+    if (!tokens?.accessToken) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await axios.get("http://localhost:8080/api/v1/categories", {
         headers: { Authorization: `Bearer ${tokens.accessToken}` },
@@ -81,46 +83,46 @@ const CategoryPage: React.FC = () => {
           limit: pagination.limit,
           ...(search ? { name: search } : {}),
         },
-      })
+      });
 
-      setCategories(res.data.data.categories)
-      setPagination(res.data.data.pagination)
+      setCategories(res.data.data.categories);
+      setPagination(res.data.data.pagination);
     } catch {
-      message.error("Lỗi khi lấy danh sách danh mục")
+      message.error("Lỗi khi lấy danh sách danh mục");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchParentCategories = async () => {
     try {
       const res = await axios.get("http://localhost:8080/api/v1/categories", {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         params: { limit: 1000 },
-      })
-      setParentCategories(res.data.data.categories)
+      });
+      setParentCategories(res.data.data.categories);
     } catch {
-      message.error("Lỗi khi tải danh mục cha")
+      message.error("Lỗi khi tải danh mục cha");
     }
-  }
+  };
 
   const handleAdd = () => {
-    setSelectedCategory(null)
-    form.resetFields()
-    fetchParentCategories()
-    setIsModalOpen(true)
-  }
+    setSelectedCategory(null);
+    form.resetFields();
+    fetchParentCategories();
+    setIsModalOpen(true);
+  };
 
   const handleEdit = (category: Category) => {
-    setSelectedCategory(category)
+    setSelectedCategory(category);
     form.setFieldsValue({
       name: category.name,
       description: category.description,
       parent: category.parent?._id || null,
-    })
-    fetchParentCategories()
-    setIsModalOpen(true)
-  }
+    });
+    fetchParentCategories();
+    setIsModalOpen(true);
+  };
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -131,51 +133,52 @@ const CategoryPage: React.FC = () => {
         try {
           await axios.delete(`http://localhost:8080/api/v1/categories/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-          })
-          message.success("Xóa danh mục thành công")
-          fetchCategories()
+          });
+          message.success("Xóa danh mục thành công");
+          fetchCategories();
         } catch {
-          message.error("Lỗi khi xóa danh mục")
+          message.error("Lỗi khi xóa danh mục");
         }
       },
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields()
-      setSaving(true)
+      const values = await form.validateFields();
+      setSaving(true);
 
       if (selectedCategory) {
+        console.log("TOKEN in OrdersPage", tokens?.accessToken);
         await axios.put(
           `http://localhost:8080/api/v1/categories/${selectedCategory._id}`,
           values,
           {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           }
-        )
-        message.success("Cập nhật danh mục thành công")
+        );
+        message.success("Cập nhật danh mục thành công");
       } else {
         await axios.post("http://localhost:8080/api/v1/categories", values, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        })
-        message.success("Tạo mới danh mục thành công")
+        });
+        message.success("Tạo mới danh mục thành công");
       }
 
-      setIsModalOpen(false)
-      fetchCategories()
+      setIsModalOpen(false);
+      fetchCategories();
     } catch {
-      message.error("Lỗi khi xử lý danh mục")
+      message.error("Lỗi khi xử lý danh mục");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
-    setPagination({ ...pagination, page: 1 })
-    fetchCategories(value)
-  }
+    setSearchTerm(value);
+    setPagination({ ...pagination, page: 1 });
+    fetchCategories(value);
+  };
 
   const columns = [
     {
@@ -223,7 +226,7 @@ const CategoryPage: React.FC = () => {
         </Space>
       ),
     },
-  ]
+  ];
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
@@ -283,23 +286,22 @@ const CategoryPage: React.FC = () => {
           <Form.Item name="parent" label="Danh mục cha">
             <Select allowClear placeholder="-- Không có --">
               {parentCategories
-  .filter(
-    (cat) =>
-      cat.parent === null && 
-      (!selectedCategory || cat._id !== selectedCategory._id) 
-  )
-  .map((cat) => (
-    <Option key={cat._id} value={cat._id}>
-      {cat.name}
-    </Option>
-  ))}
-
+                .filter(
+                  (cat) =>
+                    cat.parent === null &&
+                    (!selectedCategory || cat._id !== selectedCategory._id)
+                )
+                .map((cat) => (
+                  <Option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default CategoryPage
+export default CategoryPage;

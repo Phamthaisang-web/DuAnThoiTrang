@@ -1,6 +1,7 @@
 import usersController from "../controllers/users.controller";
-import validateSchemaYup from "../middlewares/validate.middleware"; 
-import usersValidation from "../validations/users.validation"; 
+import { authenticateToken } from "../middlewares/auth.middleware";
+import validateSchemaYup from "../middlewares/validate.middleware";
+import usersValidation from "../validations/users.validation";
 import express from "express";
 
 const router = express.Router();
@@ -23,16 +24,16 @@ router.post(
   usersController.create
 );
 
-router.put(
-  "/users/:id",
-  validateSchemaYup(usersValidation.updateUserSchema),
-  usersController.update
-);
-
 router.delete(
   "/users/:id",
   validateSchemaYup(usersValidation.deleteUserByIdSchema),
   usersController.deleteUser
 );
+
+// ✅ Route cập nhật chính mình
+router.put("/users/me", authenticateToken, usersController.updateMe);
+
+// ✅ Route xoá chính mình (nếu có)
+router.delete("/users/me", authenticateToken, usersController.deleteMe);
 
 export default router;

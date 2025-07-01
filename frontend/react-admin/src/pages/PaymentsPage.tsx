@@ -1,7 +1,6 @@
-// pages/PaymentPage.tsx
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -13,65 +12,87 @@ import {
   Select,
   message,
   Typography,
-} from "antd"
-import { EditOutlined, DeleteOutlined, CreditCardOutlined } from "@ant-design/icons"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../stores/useAuthStore"
-import dayjs from "dayjs"
+} from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CreditCardOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
+import dayjs from "dayjs";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 interface Payment {
-  _id: string
-  order: string
-  paymentDate: string
-  amount: number
-  method: string
+  _id: string;
+  order: string;
+  paymentDate: string;
+  amount: number;
+  method: string;
+}
+
+interface Order {
+  _id: string;
 }
 
 const PaymentPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { tokens } = useAuthStore()
-  const [form] = Form.useForm()
+  const navigate = useNavigate();
+  const { tokens } = useAuthStore();
+  const [form] = Form.useForm();
 
-  const [payments, setPayments] = useState<Payment[]>([])
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   useEffect(() => {
     if (!tokens?.accessToken) {
-      message.warning("Vui lòng đăng nhập")
-      navigate("/login")
+      message.warning("Vui lòng đăng nhập");
+      navigate("/login");
     } else {
-      fetchPayments()
+      fetchPayments();
+      fetchOrders();
     }
-  }, [tokens])
+  }, [tokens]);
 
   const fetchPayments = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await axios.get("http://localhost:8080/api/v1/payments", {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-      })
-      setPayments(res.data.data.payments)
+      });
+      setPayments(res.data.data.payments);
     } catch {
-      message.error("Lỗi khi lấy danh sách thanh toán")
+      message.error("Lỗi khi lấy danh sách thanh toán");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/api/v1/orders", {
+        headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+      });
+      setOrders(res.data.data.orders);
+    } catch {
+      message.error("Lỗi khi lấy danh sách đơn hàng");
+    }
+  };
 
   const handleEdit = (payment: Payment) => {
     form.setFieldsValue({
       ...payment,
       paymentDate: dayjs(payment.paymentDate),
-    })
-    setSelectedPayment(payment)
-    setIsModalOpen(true)
-  }
+    });
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
+  };
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -82,36 +103,49 @@ const PaymentPage: React.FC = () => {
         try {
           await axios.delete(`http://localhost:8080/api/v1/payments/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-          })
-          message.success("Xóa thành công")
-          fetchPayments()
+          });
+          message.success("Xóa thành công");
+          fetchPayments();
         } catch {
-          message.error("Xóa thất bại")
+          message.error("Xóa thất bại");
         }
       },
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields()
-      values.paymentDate = values.paymentDate.toISOString()
-      setSaving(true)
+      const values = await form.validateFields();
+      values.paymentDate = values.paymentDate.toISOString();
+      setSaving(true);
 
       if (selectedPayment) {
-        await axios.put(`http://localhost:8080/api/v1/payments/${selectedPayment._id}`, values, {
+        // Cập nhật
+        await axios.put(
+          `http://localhost:8080/api/v1/payments/${selectedPayment._id}`,
+          values,
+          {
+            headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+          }
+        );
+        message.success("Cập nhật thành công");
+      } else {
+        // Thêm mới
+        await axios.post("http://localhost:8080/api/v1/payments", values, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        })
-        message.success("Cập nhật thành công")
-        setIsModalOpen(false)
-        fetchPayments()
+        });
+        message.success("Thêm mới thành công");
       }
-    } catch {
-      message.error("Lỗi khi lưu")
+
+      setIsModalOpen(false);
+      fetchPayments();
+    } catch (error) {
+      console.error(error);
+      message.error("Lỗi khi lưu thanh toán");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const columns = [
     {
@@ -136,24 +170,49 @@ const PaymentPage: React.FC = () => {
       dataIndex: "method",
       key: "method",
       render: (method: string) =>
-        method === "cash" ? "Tiền mặt" : method === "bank_transfer" ? "Chuyển khoản" : method,
+        method === "cash"
+          ? "Tiền mặt"
+          : method === "bank_transfer"
+          ? "Chuyển khoản"
+          : method,
     },
     {
       title: "Thao tác",
       key: "actions",
       render: (_: any, record: Payment) => (
         <Space>
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)}>Xóa</Button>
+          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+            Sửa
+          </Button>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record._id)}
+          >
+            Xóa
+          </Button>
         </Space>
       ),
     },
-  ]
+  ];
 
   return (
     <div className="p-4 max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <Title level={3}><CreditCardOutlined /> Quản Lý Thanh Toán</Title>
+        <Title level={3}>
+          <CreditCardOutlined /> Quản Lý Thanh Toán
+        </Title>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => {
+            setSelectedPayment(null);
+            form.resetFields();
+            setIsModalOpen(true);
+          }}
+        >
+          Thêm thanh toán
+        </Button>
       </div>
 
       <Table
@@ -169,28 +228,52 @@ const PaymentPage: React.FC = () => {
         onOk={handleSave}
         onCancel={() => setIsModalOpen(false)}
         confirmLoading={saving}
-        title="Chỉnh sửa thanh toán"
+        title={selectedPayment ? "Chỉnh sửa thanh toán" : "Thêm mới thanh toán"}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="order" label="Mã đơn hàng" rules={[{ required: true }]}>
-            <InputNumber className="w-full" disabled />
+          <Form.Item
+            name="order"
+            label="Mã đơn hàng"
+            rules={[{ required: true }]}
+          >
+            <Select
+              showSearch
+              placeholder="Chọn đơn hàng"
+              disabled={!!selectedPayment}
+              options={orders.map((o) => ({ label: o._id, value: o._id }))}
+              className="w-full"
+            />
           </Form.Item>
-          <Form.Item name="paymentDate" label="Ngày thanh toán" rules={[{ required: true }]}>
+          <Form.Item
+            name="paymentDate"
+            label="Ngày thanh toán"
+            rules={[{ required: true }]}
+          >
             <DatePicker showTime className="w-full" />
           </Form.Item>
-          <Form.Item name="amount" label="Số tiền" rules={[{ required: true, type: "number", min: 0 }]}>
+          <Form.Item
+            name="amount"
+            label="Số tiền"
+            rules={[{ required: true, type: "number", min: 0 }]}
+          >
             <InputNumber className="w-full" />
           </Form.Item>
-          <Form.Item name="method" label="Phương thức thanh toán" rules={[{ required: true }]}>
-            <Select options={[
-              { label: "Tiền mặt", value: "cash" },
-              { label: "Chuyển khoản", value: "bank_transfer" },
-            ]} />
+          <Form.Item
+            name="method"
+            label="Phương thức thanh toán"
+            rules={[{ required: true }]}
+          >
+            <Select
+              options={[
+                { label: "Tiền mặt", value: "cash" },
+                { label: "Chuyển khoản", value: "bank_transfer" },
+              ]}
+            />
           </Form.Item>
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default PaymentPage
+export default PaymentPage;

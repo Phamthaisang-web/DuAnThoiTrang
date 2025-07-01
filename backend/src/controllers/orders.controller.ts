@@ -9,10 +9,19 @@ const getAllOrders = async (
   next: NextFunction
 ) => {
   try {
-    const orders = await ordersService.getAllOrders();
+    const orders = await ordersService.getAllOrders(req.query);
     sendJsonSuccess(res, orders);
   } catch (error) {
     next(error);
+  }
+};
+const getMyOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = res.locals.staff;
+    const orders = await ordersService.getMyOrders(user._id);
+    res.status(200).json({ data: { orders } });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -87,4 +96,5 @@ export default {
   update,
   remove,
   getOrdersByUserId,
+  getMyOrders,
 };

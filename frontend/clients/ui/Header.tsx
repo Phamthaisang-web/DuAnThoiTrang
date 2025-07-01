@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import React from "react";
-import { ShoppingCart, User, LogOut } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuthStore } from "@/stores/useAuthStore";
+import ProductAIChat from "@/components/ProductAIChat";
 
 export default function Header() {
   const { cartCount } = useCart();
-  const { user, clearUser, clearTokens, hydrated } = useAuthStore();
+  const { user, hydrated } = useAuthStore();
 
   if (!hydrated) return null;
-
-  const handleLogout = () => {
-    clearUser();
-    clearTokens();
-    // 👉 KHÔNG chuyển trang, giữ nguyên
-  };
 
   return (
     <header className="sticky top-0 z-50">
@@ -24,7 +19,7 @@ export default function Header() {
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-15">
             <Link href="/">
-              <div className="text-lg font-bold">My App</div>
+              <div className="text-lg font-bold">Fashion Store</div>
             </Link>
 
             <ul className="flex space-x-4">
@@ -64,17 +59,17 @@ export default function Header() {
             {user ? (
               <div className="flex items-center gap-3 text-white">
                 <div className="flex items-center gap-2">
-                  <div className="bg-white text-black rounded-full p-1">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <span>{user.fullName}</span>
+                  <Link
+                    href="/user"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <div className="bg-white text-black rounded-full p-1">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <span>{user.fullName}</span>
+                  </Link>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1 text-white text-sm border border-white rounded px-2 py-1 hover:bg-white hover:text-black transition"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                {/* Nút Đăng xuất đã bị xóa */}
               </div>
             ) : (
               <Link
@@ -102,6 +97,7 @@ export default function Header() {
           Thời trang nữ
         </Link>
       </div>
+      <ProductAIChat />
     </header>
   );
 }

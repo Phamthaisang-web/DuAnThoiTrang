@@ -8,7 +8,9 @@ const getAllOrderDetails = async (
   next: NextFunction
 ) => {
   try {
-    const orderDetails = await orderDetailsService.getAllOrderDetails();
+    const orderDetails = await orderDetailsService.getAllOrderDetails(
+      req.query
+    );
     sendJsonSuccess(res, orderDetails);
   } catch (error: any) {
     next(error);

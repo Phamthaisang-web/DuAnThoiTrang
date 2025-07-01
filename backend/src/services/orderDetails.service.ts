@@ -10,13 +10,30 @@ interface OrderDetailInput {
   size?: "XS" | "S" | "M" | "L" | "XL";
   color?: string;
 }
+const getAllOrderDetails = async (query: any) => {
+  const { orderId } = query;
 
-const getAllOrderDetails = async () => {
+  const where: any = {};
+  if (orderId) {
+    where.order = orderId;
+  }
+
   const orderDetails = await orderDetailModel
-    .find()
-    .populate("order", "user orderDate status totalAmount")
-    .populate("product", "name price");
-  return orderDetails;
+    .find(where)
+    .populate({
+      path: "order",
+      select: "_id createdAt status totalAmount",
+    })
+    .populate({
+      path: "product",
+      select: "name price",
+    })
+    .sort({ createdAt: -1 });
+
+  return {
+    data: orderDetails,
+    total: orderDetails.length,
+  };
 };
 
 const getOrderDetailById = async (id: string) => {
@@ -73,17 +90,27 @@ const updateOrderDetail = async (
 
   return orderDetail;
 };
-
 const deleteOrderDetail = async (id: string) => {
   if (!Types.ObjectId.isValid(id)) {
     throw new Error("Invalid order detail ID");
   }
 
-  const orderDetail = await orderDetailModel.findByIdAndDelete(id);
-
+  const orderDetail = await orderDetailModel.findById(id);
   if (!orderDetail) {
     throw new Error("Order detail not found");
   }
+
+  // Cộng lại số lượng về stock
+  await import("../models/product.model").then(
+    async ({ default: productModel }) => {
+      await productModel.findByIdAndUpdate(orderDetail.product, {
+        $inc: { stockQuantity: orderDetail.quantity },
+      });
+    }
+  );
+
+  // Xoá chi tiết đơn hàng
+  await orderDetailModel.findByIdAndDelete(id);
 
   return orderDetail;
 };

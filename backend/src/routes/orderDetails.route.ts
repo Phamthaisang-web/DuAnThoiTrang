@@ -27,7 +27,7 @@ router.put(
   orderDetailsController.update
 );
 router.delete(
-  "/order-detail/:id",
+  "/order-details/:id",
   authenticateToken,
   orderDetailsController.remove
 );

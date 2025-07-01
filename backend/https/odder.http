@@ -1,22 +1,10 @@
-POST http://localhost:8080/api/v1/orders
+PUT http://localhost:8080/api/v1/orders/685fe22e05ea29cd73f83d7b
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVhM2FjOTBmMmFmNzNlYzkyNjVhZGYiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUwODI1OTQ5LCJleHAiOjE3NTA5MTIzNDl9.m4ARVV2M5NJqvk2RoPxmpZGYSGpq5JmPB0glmTZzpx0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVmYzM0ZGMxZDQ4NDhkNWM2NTJmMmIiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUxMTE1NDMyLCJleHAiOjE3NTEyMDE4MzJ9.QxXMwQqEAiybQd1IsiGlIC75qWeHpi6gUAJXahPRS1s
 
 {
-  "items": [
-    {
-      "product": "6857cd8e61763774bcf918e4",
-      "quantity": 2,
-      "price": 150000,
-      "size": "M",
-      "color": "black"
-    },
-    {
-      "product": "6857cd8e61763774bcf918e4",
-      "quantity": 1,
-      "price": 200000,
-      "size": "L",
-      "color": "white"
-    }
-  ]
+  "status" : "delivered"
 }
+###
+GET http://localhost:8080/api/v1/order-details?orderId=686220828183c4ea41a4bf46
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVmYzM0ZGMxZDQ4NDhkNWM2NTJmMmIiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUxMjY2NjE5LCJleHAiOjE3NTEzNTMwMTl9.hc5BtL1kiHg62fOiuzfzAN15ZCTBDxHbBd2L5tggego
