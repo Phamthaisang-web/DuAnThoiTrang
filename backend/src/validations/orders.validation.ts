@@ -22,7 +22,15 @@ const orderCreateSchema = yup
           .string()
           .max(50, "Status must not exceed 50 characters.")
           .oneOf(
-            ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+            [
+              "pending",
+              "confirmed",
+              "shipped",
+              "delivered",
+              "cancelled",
+              "return_requested",
+              "returned",
+            ],
             "Invalid order status."
           )
           .optional(),
@@ -76,7 +84,15 @@ const orderUpdateSchema = yup
           .string()
           .max(50, "Status must not exceed 50 characters.")
           .oneOf(
-            ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+            [
+              "pending",
+              "confirmed",
+              "shipped",
+              "delivered",
+              "cancelled",
+              "return_requested",
+              "returned",
+            ],
             "Invalid order status."
           )
           .optional(),

@@ -13,15 +13,9 @@ router.get(
 );
 
 router.get(
-  "/user/:id",
+  "/users/:id",
   validateSchemaYup(usersValidation.getUserByIdSchema),
   usersController.getByID
-);
-
-router.post(
-  "/users",
-  validateSchemaYup(usersValidation.createUserSchema),
-  usersController.create
 );
 
 router.delete(
@@ -29,8 +23,22 @@ router.delete(
   validateSchemaYup(usersValidation.deleteUserByIdSchema),
   usersController.deleteUser
 );
+// ✅ Gửi OTP tới email để tạo tài khoản
+router.post(
+  "/users/request-otp",
 
+  validateSchemaYup(usersValidation.requestOtpSchema),
+  usersController.requestOtp
+);
+
+// ✅ Xác minh OTP và tạo tài khoản
+router.post(
+  "/users/verify-otp",
+  validateSchemaYup(usersValidation.verifyOtpSchema),
+  usersController.verifyOtp
+);
 // ✅ Route cập nhật chính mình
+router.put("/users/:id", authenticateToken, usersController.update);
 router.put("/users/me", authenticateToken, usersController.updateMe);
 
 // ✅ Route xoá chính mình (nếu có)

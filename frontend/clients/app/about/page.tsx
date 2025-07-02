@@ -226,52 +226,6 @@ export default function AboutPage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-              Danh Mục Sản Phẩm
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Từ thời trang công sở đến dạ hội, chúng tôi có đầy đủ các sản phẩm
-              từ những thương hiệu hàng đầu
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {categories.map((category, index) => (
-              <div
-                key={index}
-                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={category.image || "/placeholder.svg"}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-20 group-hover:opacity-30 transition-opacity`}
-                  ></div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-gray-600 mb-2">{category.description}</p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    <strong>Thương hiệu:</strong> {category.brands}
-                  </p>
-                  <button className="text-slate-700 font-semibold hover:text-slate-900 transition-colors flex items-center">
-                    Xem Sản Phẩm
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Values Section */}
       <section className="py-20 px-4 bg-white/50 backdrop-blur-sm">

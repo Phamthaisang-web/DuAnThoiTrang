@@ -1,16 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Modal,
-  Select,
-  message,
-  Typography,
-  Tag,
-  Space,
-} from "antd";
+import { Table, Button, Select, message, Typography, Tag, Space } from "antd";
 import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
@@ -44,19 +35,25 @@ const statusColors: Record<string, string> = {
   confirmed: "blue",
   shipped: "cyan",
   delivered: "green",
+  return_requested: "gold",
+  returned: "gray",
   cancelled: "red",
 };
+
 const statusLabels: Record<string, string> = {
   pending: "Chờ xác nhận",
   confirmed: "Đã xác nhận",
   shipped: "Đang giao",
   delivered: "Đã giao",
+  return_requested: "Yêu cầu trả hàng",
+  returned: "Đã trả hàng",
   cancelled: "Đã hủy",
 };
 
 const OrderPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { tokens } = useAuthStore();
   const navigate = useNavigate();
 
@@ -73,12 +70,10 @@ const OrderPage: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      console.log("🔐 Token gửi đi:", tokens?.accessToken);
       setLoading(true);
       const res = await axios.get("http://localhost:8080/api/v1/orders", {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
-      console.log("📦 Dữ liệu đơn hàng nhận được:", res.data);
       setOrders(res.data.data.orders);
     } catch (err) {
       message.error("Lỗi khi tải danh sách đơn hàng");
@@ -169,14 +164,24 @@ const OrderPage: React.FC = () => {
           onChange={(value) => {
             if (value !== status) handleStatusChange(record._id, value);
           }}
-          style={{ width: 160 }}
-          disabled={status === "cancelled"} // ✅ Không cho chọn nếu đã huỷ
+          style={{ width: 180 }}
+          disabled={["cancelled", "returned", "delivered"].includes(status)}
         >
-          {Object.keys(statusColors).map((s) => (
-            <Option key={s} value={s}>
-              <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>
-            </Option>
-          ))}
+          {Object.keys(statusColors)
+            .filter((s) => {
+              if (record.status === "return_requested") return s === "returned";
+              if (s === "return_requested") return false;
+              if (["cancelled", "returned"].includes(record.status))
+                return false;
+              if (s === "returned" && record.status !== "return_requested")
+                return false;
+              return true;
+            })
+            .map((s) => (
+              <Option key={s} value={s}>
+                <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>
+              </Option>
+            ))}
         </Select>
       ),
     },
@@ -187,7 +192,7 @@ const OrderPage: React.FC = () => {
         <Space>
           <Button
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/admin/orders/${record._id}`)}
+            onClick={() => navigate(`/orders/${record._id}`)}
           >
             Chi tiết
           </Button>
@@ -199,16 +204,44 @@ const OrderPage: React.FC = () => {
     },
   ];
 
+  const filteredOrders = statusFilter
+    ? orders.filter((order) => order.status === statusFilter)
+    : orders;
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
       <Title level={3}>📦 Quản Lý Đơn Hàng</Title>
+
+      {/* Bộ lọc trạng thái */}
+      <div className="mb-4 flex gap-4 items-center">
+        <span>Lọc theo trạng thái:</span>
+        <Select
+          allowClear
+          placeholder="Chọn trạng thái"
+          value={statusFilter ?? undefined}
+          onChange={(value) => setStatusFilter(value || null)}
+          style={{ width: 240 }}
+        >
+          <Option value={null}>Tất cả trạng thái</Option>
+          {Object.entries(statusLabels).map(([key, label]) => {
+            const count = orders.filter((o) => o.status === key).length;
+            return (
+              <Option key={key} value={key}>
+                {label} ({count})
+              </Option>
+            );
+          })}
+        </Select>
+      </div>
+
+      {/* Bảng đơn hàng */}
       <Table
         columns={columns}
-        dataSource={orders}
+        dataSource={filteredOrders}
         rowKey="_id"
         loading={loading}
         pagination={{ pageSize: 10 }}
-        scroll={{ x: "max-content" }} // 👈 Thêm dòng này để cuộn ngang
+        scroll={{ x: "max-content" }}
       />
     </div>
   );

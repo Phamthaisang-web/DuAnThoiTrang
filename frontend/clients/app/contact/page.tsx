@@ -45,30 +45,6 @@ export default function ContactPage() {
     },
   ];
 
-  const stores = [
-    {
-      name: "Showroom Quận 1",
-      address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
-      phone: "028 3456 7890",
-      hours: "9:00 - 21:00 (T2-T7), 10:00 - 20:00 (CN)",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      name: "Showroom Quận 3",
-      address: "456 Võ Văn Tần, Quận 3, TP.HCM",
-      phone: "028 3456 7891",
-      hours: "9:00 - 21:00 (T2-T7), 10:00 - 20:00 (CN)",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      name: "Showroom Hà Nội",
-      address: "789 Hoàn Kiếm, Hà Nội",
-      phone: "024 3456 7892",
-      hours: "9:00 - 21:00 (T2-T7), 10:00 - 20:00 (CN)",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ];
-
   const socialLinks = [
     {
       icon: Facebook,
@@ -345,63 +321,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Store Locations */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-              Hệ Thống Showroom
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Ghé thăm các showroom của chúng tôi để trải nghiệm trực tiếp những
-              sản phẩm thời trang hàng hiệu
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {stores.map((store, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={store.image || "/placeholder.svg"}
-                    alt={store.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h3 className="text-xl font-bold">{store.name}</h3>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <MapPin className="w-5 h-5 text-gray-400 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{store.address}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700">{store.phone}</span>
-                    </div>
-                    <div className="flex items-start">
-                      <Clock className="w-5 h-5 text-gray-400 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{store.hours}</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full mt-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2 px-4 rounded-lg transition-colors">
-                    Xem Chỉ Đường
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ Section */}
       <section className="py-20 px-4 bg-white/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto">
@@ -471,14 +390,14 @@ export default function ContactPage() {
                 className="px-8 py-4 bg-white text-slate-800 hover:bg-gray-50 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center"
               >
                 <Phone className="w-5 h-5 mr-2" />
-                Gọi Ngay: 1900 1234
+                Gọi Ngay: 123456789
               </a>
               <a
                 href="mailto:info@fashionstore.vn"
                 className="px-8 py-4 border-2 border-white/30 text-white hover:bg-white/10 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center"
               >
                 <Mail className="w-5 h-5 mr-2" />
-                Gửi Email
+                Gửi Email: phamthaisang1710@gmail.com
               </a>
             </div>
           </div>

@@ -5,7 +5,7 @@ import auth from "./routes/auth.route";
 import brands from "./routes/brands.route";
 import products from "./routes/products.route";
 import upload from "./routes/upload.route";
-
+import statisticsRouter from "./routes/statistics.route";
 import orders from "./routes/orders.route";
 import orderDetails from "./routes/orderDetails.route";
 import promotions from "./routes/promotion.route";
@@ -32,6 +32,6 @@ app.use("/api/v1/", orderDetails);
 app.use("/api/v1/", promotions);
 app.use("/api/v1/", addresses);
 app.use("/api/v1/", aiRoutes);
-
+app.use("/api/v1/statistics", statisticsRouter);
 app.use(express.static(path.join(__dirname, "../public")));
 export default app;

@@ -12,6 +12,12 @@ const EnvSchema = yup.object().shape({
   MONGODB_URI: yup.string().required(),
   JWT_SECRET: yup.string().required().default("catFly200@smiles"),
   OPENAI_API_KEY: yup.string().required("OPENAI_API_KEY is required"),
+
+  EMAIL_HOST: yup.string().required(),
+  EMAIL_PORT: yup.number().required(),
+  EMAIL_SSL: yup.boolean().required(),
+  EMAIL_ACCOUNT: yup.string().required(),
+  EMAIL_PASSWORD: yup.string().required(),
 });
 
 // Environment Configuration Helper

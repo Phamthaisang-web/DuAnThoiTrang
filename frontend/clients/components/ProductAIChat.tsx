@@ -78,9 +78,9 @@ const ProductAIChat = () => {
       {/* Nút chat */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-5 right-5 z-50 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg transition"
+        className="fixed bottom-20 right-5 z-50 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg transition"
       >
-        <MessageCircle size={20} />
+        <MessageCircle size={30} />
       </button>
 
       {/* Khung chat */}

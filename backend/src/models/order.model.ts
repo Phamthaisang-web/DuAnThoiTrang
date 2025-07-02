@@ -15,7 +15,15 @@ const orderSchema = new Schema(
     orderDate: { type: Date, default: Date.now },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
+      enum: [
+        "pending",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "return_requested", // thêm
+        "returned",
+      ],
       default: "pending",
     },
     totalAmount: { type: Number, required: true, min: 0 },

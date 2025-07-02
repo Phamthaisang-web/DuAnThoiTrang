@@ -4,6 +4,19 @@ import productModel from "../models/product.model";
 import promotionModel from "../models/promotion.model";
 import userModel from "../models/user.model";
 import addressModel from "../models/address.model";
+import nodemailer from "nodemailer";
+import { env } from "../helpers/env.helper";
+
+// Tạo transporter
+const transporter = nodemailer.createTransport({
+  host: env.EMAIL_HOST,
+  port: env.EMAIL_PORT,
+  secure: env.EMAIL_SSL, // true for 465, false for other ports
+  auth: {
+    user: env.EMAIL_ACCOUNT,
+    pass: env.EMAIL_PASSWORD, //mật khẩu ứng dụng
+  },
+} as nodemailer.TransportOptions);
 
 const getAllOrders = async (query: any) => {
   const { page = 1, limit = 10, status, userName } = query;
@@ -144,7 +157,85 @@ const createOrder = async (orderData: any) => {
 
     savedDetails.push(orderDetail);
   }
+  const userDoc = await userModel.findById(user);
+  if (!userDoc || !userDoc.email) {
+    throw new Error("Không tìm thấy thông tin người dùng hợp lệ để gửi email");
+  }
 
+  if (newOrder) {
+    const productListHtml = orderDetails
+      .map(
+        (item) => `
+      <tr>
+        <td>${item.product.name}</td>
+        <td style="text-align: center;">${item.quantity}</td>
+        <td style="text-align: center;">${item.size || "-"}</td>
+        <td style="text-align: center;">${item.color || "-"}</td>
+        <td style="text-align: right;">${item.unitPrice.toLocaleString()} đ</td>
+      </tr>
+    `
+      )
+      .join("");
+
+    const mailOptions = {
+      from: env.EMAIL_ACCOUNT,
+      to: userDoc.email,
+      subject: `Xác nhận đơn hàng từ Cửa Hàng ABC - ${new Date().toLocaleDateString()}`,
+      html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2>Xin chào ${user.fullName},</h2>
+
+        <p>Cảm ơn bạn đã đặt hàng tại <strong>Cửa Hàng ABC</strong>! 🎉</p>
+
+        <p>Dưới đây là thông tin đơn hàng của bạn:</p>
+
+        <p><strong>Ngày đặt hàng:</strong> ${new Date().toLocaleString()}</p>
+
+        <table border="1" cellspacing="0" cellpadding="8" width="100%" style="border-collapse: collapse;">
+          <thead style="background-color: #f2f2f2;">
+            <tr>
+              <th>Sản phẩm</th>
+              <th>Số lượng</th>
+              <th>Kích thước</th>
+              <th>Màu sắc</th>
+              <th>Đơn giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productListHtml}
+          </tbody>
+        </table>
+
+        <p><strong>Tạm tính:</strong> ${totalAmount.toLocaleString()} đ</p>
+        ${
+          discountValue > 0
+            ? `<p><strong>Giảm giá:</strong> -${discountValue.toLocaleString()} đ</p>`
+            : ""
+        }
+        <p><strong>Tổng thanh toán:</strong> ${finalAmount.toLocaleString()} đ</p>
+
+
+        <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ Cửa Hàng ABC</strong></p>
+
+        <hr style="margin-top: 40px;" />
+        <p style="font-size: 12px; color: #888;">
+          Đây là email tự động. Vui lòng không trả lời email này.
+        </p>
+      </div>
+    `,
+    };
+
+    transporter.sendMail(
+      mailOptions,
+      (error: Error | null, info: nodemailer.SentMessageInfo) => {
+        if (error) {
+          console.error("Lỗi gửi email:", error);
+        } else {
+          console.log("Đã gửi email xác nhận đơn hàng:", info.response);
+        }
+      }
+    );
+  }
   return {
     order: newOrder,
     details: savedDetails,
@@ -158,6 +249,8 @@ const updateOrder = async (id: string, orderData: any) => {
     "shipped",
     "delivered",
     "cancelled",
+    "return_requested",
+    "returned",
   ];
 
   if (!orderData.status || !allowedStatuses.includes(orderData.status)) {

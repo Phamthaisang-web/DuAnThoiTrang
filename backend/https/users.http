@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "fullName": "phamthaisang",
-  "email": "phamthaisang1710@gmail.com",
+  "email": "phamthaisang171s0@gmail.com",
     "password": "123456",
     "phone": "0987654321",
     "role": "admin"
@@ -13,10 +13,47 @@ GET http://localhost:8080/api/v1/users
 ### delete user
 DELETE http://localhost:8080/api/v1/user/683f707d8a260f9507823e59
 ###
-PUT http://localhost:8080/api/v1/users/me
+PUT http://localhost:8080/api/v1/users/685f813f66c9518b12aa43d0
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVmODEzZjY2Yzk1MThiMTJhYTQzZDAiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxMjk2Nzg2LCJleHAiOjE3NTEzODMxODZ9.diJm2DZQRlnUyshO1EKc2nLMpkoPm2nLzhZId2y2i1A
 
 {
   "fullName": "j"
 }
+###
+POST http://localhost:8080/api/v1/users/request-otp
+Content-Type: application/json
+
+{
+  "fullName": "phamthaisang",
+  "email": "phamthaisang1710@gmail.com",
+  "phone": "0987654321",
+  "password": "123456!",
+  "role": "admin"
+}
+###
+
+POST http://localhost:8080/api/v1/users/verify-otp
+Content-Type: application/json
+
+{
+  "email": "phamthaisang1710@gmail.com",
+  "otp": "412718" 
+}
+###
+
+/*
+
+// ✅ Gửi OTP tới email để tạo tài khoản
+router.post(
+  "/users/request-otp",
+
+  usersController.requestOtp
+);
+
+// ✅ Xác minh OTP và tạo tài khoản
+router.post(
+  "/users/verify-otp",
+
+  usersController.verifyOtp
+);*/
