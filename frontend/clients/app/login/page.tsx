@@ -130,10 +130,40 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Kiểm tra mật khẩu mạnh khi đăng ký
+    if (!isLogin && step === "form") {
+      const { password } = form;
+
+      if (password.length < 8) {
+        toast.error("Mật khẩu phải có ít nhất 8 ký tự");
+        return;
+      }
+
+      if (!/[A-Z]/.test(password)) {
+        toast.error("Mật khẩu phải chứa ít nhất một chữ in hoa");
+        return;
+      }
+
+      if (!/[a-z]/.test(password)) {
+        toast.error("Mật khẩu phải chứa ít nhất một chữ thường");
+        return;
+      }
+
+      if (!/[0-9]/.test(password)) {
+        toast.error("Mật khẩu phải chứa ít nhất một số");
+        return;
+      }
+    }
+    // ✅ Kiểm tra định dạng email hợp lệ
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      toast.error("Email không hợp lệ. Vui lòng nhập đúng định dạng.");
+      return;
+    }
+    // Gửi form đăng nhập hoặc đăng ký
     if (isLogin) {
       await handleLogin();
     } else {
@@ -318,9 +348,13 @@ export default function AuthPage() {
                         value={form.password}
                         onChange={handleChange}
                         required
-                        minLength={6}
                         className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:border-slate-500 focus:ring-2 focus:ring-slate-500 focus:ring-opacity-20 outline-none transition-all"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Mật khẩu phải có ít nhất 8 ký tự, chứa chữ hoa, chữ
+                        thường và số.
+                      </p>
+
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}

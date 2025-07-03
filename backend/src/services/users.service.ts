@@ -153,7 +153,25 @@ const update = async (id: string, userData: any) => {
   if (!user) throw createHttpError(404, "Không tìm thấy người dùng");
   return user;
 };
+// Thêm vào user.service.ts
+const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+) => {
+  const user = await userModel.findById(userId);
+  if (!user) throw createHttpError(404, "Không tìm thấy người dùng");
 
+  // Kiểm tra mật khẩu hiện tại
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) throw createHttpError(400, "Mật khẩu hiện tại không đúng");
+
+  // Cập nhật mật khẩu mới (đã được hash tự động trong pre-save hook của model)
+  user.password = newPassword;
+  await user.save();
+
+  return { message: "Đổi mật khẩu thành công" };
+};
 // Xóa user theo ID
 const deleteUser = async (id: string) => {
   const user = await userModel.findByIdAndDelete(id);
@@ -169,4 +187,5 @@ export default {
   create,
   update,
   deleteUser,
+  changePassword,
 };

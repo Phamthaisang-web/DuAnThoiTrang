@@ -1,10 +1,10 @@
 ### create
 POST http://localhost:8080/api/v1/products
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODQwMzcwYjgwNjVkYjJmNjVlOTgwMmQiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUwOTUzMjQ1LCJleHAiOjE3NTEwMzk2NDV9.TWwUP3C1_p1JBnuTISP9qI6Lvfx23Y5YyWEMOdZCE_Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY1NWQ1MWQ3OWQ3ZjE4NGQ2Y2MzMjEiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxNTI4MTEyLCJleHAiOjE3NTE2MTQ1MTJ9.cZYU-RSV6RMOtmFXUtStDkIWxw0x3STWocY9-ELC1qE
 
 {
-  "name": "d",
+  "name": "d444444444",
   "description": "",
   "price": 24302196,
   "slug": "ao-polo-gucci-gg-knit-jacquard",

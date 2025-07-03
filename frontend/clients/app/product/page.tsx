@@ -359,7 +359,15 @@ export default function Page() {
       {/* Product list */}
       <div className="flex-1">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="font-bold text-xl">Danh sách sản phẩm</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 leading-tight flex space-x-3">
+            <span className="bg-gradient-to-r from-slate-900 via-gray-800 to-zinc-900 bg-clip-text text-transparent">
+              DANH SÁCH
+            </span>
+            <span className="bg-gradient-to-r from-amber-500 to-yellow-600 bg-clip-text text-transparent">
+              SẢN PHẨM
+            </span>
+          </h1>
+
           {!loading && (
             <div className="text-sm text-gray-600">
               {pagination.totalRecord > 0

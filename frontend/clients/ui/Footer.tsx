@@ -19,7 +19,7 @@ export default function Footer() {
   const quickLinks = [
     { name: "Trang chủ", href: "/" },
     { name: "Về chúng tôi", href: "/about" },
-    { name: "Sản phẩm", href: "/products" },
+    { name: "Sản phẩm", href: "/product" },
     { name: "Liên hệ", href: "/contact" },
   ];
 
@@ -27,7 +27,7 @@ export default function Footer() {
     {
       icon: Facebook,
       name: "Facebook",
-      href: "#",
+      href: "https://www.facebook.com/pt.sang.71",
       color: "hover:text-blue-600",
     },
     {

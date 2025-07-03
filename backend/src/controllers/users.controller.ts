@@ -75,7 +75,33 @@ const deleteMe = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = res.locals.staff; // Hoặc res.locals.staff tùy thuộc vào cách bạn xác thực
+    if (!user || !user._id) throw createHttpError(401, "Not authenticated");
 
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      throw createHttpError(
+        400,
+        "Current password and new password are required"
+      );
+    }
+
+    const result = await usersService.changePassword(
+      user._id,
+      currentPassword,
+      newPassword
+    );
+    sendJsonSuccess(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
 // Xoá người dùng khác
 const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -121,4 +147,5 @@ export default {
   deleteUser,
   requestOtp,
   verifyOtp,
+  changePassword,
 };

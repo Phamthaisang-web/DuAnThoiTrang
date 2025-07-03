@@ -57,3 +57,13 @@ router.post(
 
   usersController.verifyOtp
 );*/
+###
+PUT http://localhost:8080/api/v1/users/change-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY1NWM3YWQ3OWQ3ZjE4NGQ2Y2MyOTciLCJlbWFpbCI6InBzYW5nODM0OEBnbWFpbC5jb20iLCJpYXQiOjE3NTE1MjQxMDAsImV4cCI6MTc1MTYxMDUwMH0.lmPYbbEirAMPakow14pEJA9I_IemnMWbQghIle14fP0
+
+{
+  "currentPassword": "1234567",
+  "newPassword": "12345678!"
+
+}

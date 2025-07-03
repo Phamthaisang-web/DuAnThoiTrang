@@ -9,6 +9,7 @@ export interface IUser extends Document {
   role: "user" | "admin";
   isActive: boolean;
   isVerified: boolean;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -39,6 +40,7 @@ const userSchema = new Schema<IUser>(
   }
 );
 
+// Hash password trước khi lưu
 userSchema.pre("save", async function (next) {
   const user = this as IUser;
 
@@ -48,5 +50,13 @@ userSchema.pre("save", async function (next) {
   user.password = hash;
   next();
 });
+
+// Thêm phương thức comparePassword
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  const user = this as IUser;
+  return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
+};
 
 export default model<IUser>("User", userSchema);
