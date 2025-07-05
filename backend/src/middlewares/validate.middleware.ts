@@ -12,28 +12,22 @@ const validateSchemaYup =
           params: req.params,
         },
         {
-          abortEarly: false, // abortEarly: false để lấy tất cả lỗi thay vì chỉ lấy lỗi đầu tiên
-          stripUnknown: true, // stripUnknown: true để loại bỏ các trường không được định nghĩa trong schema
+          abortEarly: false,
+          stripUnknown: true,
         }
       );
 
       next();
-    } catch (err: any) {
-      //console.log(err);
-      if (err instanceof Error) {
-        //console.error(err);
+    } catch (err) {
+      if (err instanceof ValidationError) {
         res.status(400).json({
           statusCode: 400,
-          message: err.errors, // err.errors chứa tất cả các thông điệp lỗi
+          message: err.errors, // ✅ Hợp lệ: `errors` có thật trong ValidationError
           typeError: "validateSchema",
         });
+      } else {
+        next(err); // Nếu không phải lỗi validation thì chuyển tiếp
       }
-      next(err); //next lỗi ra cho app handle
-      // res.status(500).json({
-      //   statusCode: 500,
-      //   message: 'validate Yup Error',
-      //   typeError: 'validateSchemaUnknown'
-      // });
     }
   };
 
