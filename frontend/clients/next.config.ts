@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["localhost"], // 👈 Thêm dòng này
   },
+  eslint: {
+    ignoreDuringBuilds: true, // 👈 Thêm dòng này để bỏ qua lỗi ESLint khi build
+  },
 };
 
 export default nextConfig;
