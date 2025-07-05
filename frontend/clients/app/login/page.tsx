@@ -96,6 +96,7 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
+      console.log("ssssssss" + apiUrl);
       await axios.post(`${apiUrl}/api/v1/users/request-otp`, form, {
         headers: { "Content-Type": "application/json" },
       });
