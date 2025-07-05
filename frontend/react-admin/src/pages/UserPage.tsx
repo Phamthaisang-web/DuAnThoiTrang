@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
-  Space,
   Modal,
   Form,
   Input,
@@ -17,6 +16,7 @@ import { PlusOutlined, UserOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -33,13 +33,15 @@ interface User {
 
 const UserPage: React.FC = () => {
   const navigate = useNavigate();
-  const { tokens } = useAuthStore();
+  const { tokens, user } = useAuthStore(); // ✅ Lấy user đúng cách
   const [form] = Form.useForm();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const currentUserId = user?._id;
 
   useEffect(() => {
     if (!tokens?.accessToken) {
@@ -53,10 +55,18 @@ const UserPage: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/users", {
+      const res = await axios.get(`${env.API_URL}/api/v1/users`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
-      setUsers(res.data.data.users);
+
+      const allUsers = res.data.data.users;
+
+      // ✅ Loại bỏ chính mình khỏi danh sách
+      const filteredUsers = allUsers.filter(
+        (u: User) => u._id !== currentUserId
+      );
+
+      setUsers(filteredUsers);
     } catch (err) {
       message.error("Lỗi khi lấy danh sách người dùng");
     } finally {
@@ -74,7 +84,7 @@ const UserPage: React.FC = () => {
       const values = await form.validateFields();
       setSaving(true);
 
-      await axios.post("http://localhost:8080/api/v1/users", values, {
+      await axios.post(`${env.API_URL}/api/v1/users`, values, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       message.success("Tạo người dùng mới thành công");
@@ -89,9 +99,14 @@ const UserPage: React.FC = () => {
   };
 
   const handleToggleActive = async (checked: boolean, user: User) => {
+    if (user._id === currentUserId) {
+      message.warning("Không thể thay đổi trạng thái chính mình");
+      return;
+    }
+
     try {
       await axios.put(
-        `http://localhost:8080/api/v1/users/${user._id}`,
+        `${env.API_URL}/api/v1/user/${user._id}`,
         { isActive: checked },
         {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },

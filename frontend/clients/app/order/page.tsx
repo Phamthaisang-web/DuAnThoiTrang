@@ -15,6 +15,7 @@ import {
   CheckCircle,
   Clock,
   ArrowLeft,
+  Tag,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
@@ -22,7 +23,8 @@ import { useEffect, useState } from "react";
 import AddressModal from "../../components/AddressModal";
 import Image from "next/image";
 import Link from "next/link";
-
+import PromotionsList from "@/components/PromotionList";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 type Address = {
   _id: string;
   receiverName: string;
@@ -33,7 +35,27 @@ type Address = {
   ward: string;
   isDefault: boolean;
 };
+export const calculateDiscountedAmount = (
+  originalAmount: number,
+  type?: "percent" | "fixed",
+  value?: number,
+  maxDiscount?: number
+): number => {
+  if (!type || !value) return originalAmount;
 
+  let discountAmount = 0;
+
+  if (type === "percent") {
+    discountAmount = (originalAmount * value) / 100;
+    if (maxDiscount) {
+      discountAmount = Math.min(discountAmount, maxDiscount);
+    }
+  } else {
+    discountAmount = Math.min(value, originalAmount);
+  }
+
+  return Math.max(0, originalAmount - discountAmount);
+};
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
   const { user, tokens } = useAuthStore();
@@ -49,16 +71,25 @@ export default function CheckoutPage() {
     "COD"
   );
   const [bankInfoIsSet, setBankInfoIsSet] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [promoName, setPromoName] = useState("");
+  const [discountType, setDiscountType] = useState<"percent" | "fixed">();
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [maxDiscount, setMaxDiscount] = useState<number | undefined>();
 
   const accessToken = tokens?.accessToken;
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+  const discountedAmount = totalAmount * (1 - discount / 100);
 
   const fetchAddresses = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/v1/addresses", {
+      const res = await fetch(`${apiUrl}/api/v1/addresses`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (!res.ok) throw new Error("Không thể tải địa chỉ");
@@ -85,6 +116,59 @@ export default function CheckoutPage() {
     }
     fetchAddresses();
   }, [user, accessToken, router]);
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) {
+      setPromoError("Vui lòng nhập mã giảm giá");
+      return;
+    }
+
+    setIsApplyingPromo(true);
+    setPromoError("");
+
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/promotions/${promoCode}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Mã giảm giá không hợp lệ");
+      }
+
+      const data = await res.json();
+      const promo = data.data;
+
+      setPromoName(promo.name || promo.code);
+      setDiscountType(promo.type); // "percent" | "fixed"
+      setDiscountValue(promo.value); // Giá trị giảm giá (10% hoặc 100000đ)
+      setMaxDiscount(promo.maxDiscount); // Giới hạn tối đa (nếu có)
+
+      // Tính toán số tiền giảm để hiển thị
+      if (promo.type === "percent") {
+        setDiscount(promo.value); // Lưu % giảm giá để hiển thị
+      } else {
+        // Đối với giảm giá cố định, tính % tương đối để hiển thị
+        const percentDiscount = (promo.value / totalAmount) * 100;
+        setDiscount(Math.round(percentDiscount));
+      }
+
+      toast.success("Áp dụng mã giảm giá thành công!");
+    } catch (err: any) {
+      if (err.message) setPromoError("Mã sai");
+      resetPromoCode();
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
+  const resetPromoCode = () => {
+    setPromoName("");
+    setDiscountType(undefined);
+    setDiscountValue(0);
+    setMaxDiscount(undefined);
+    setDiscount(0);
+  };
 
   const handleCheckout = async () => {
     if (!selectedAddressId || isLoading) {
@@ -93,16 +177,28 @@ export default function CheckoutPage() {
     }
 
     if (paymentMethod === "BANK_TRANSFER" && !bankInfoIsSet) {
-      toast.error(
-        "Thông tin chuyển khoản chưa được cập nhật. Vui lòng chọn phương thức khác."
-      );
+      toast.error("Thông tin chuyển khoản chưa được cập nhật.");
       return;
     }
 
     setIsLoading(true);
 
+    const originalTotal = cart.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0
+    );
+
+    const finalAmount = discountType
+      ? calculateDiscountedAmount(
+          originalTotal,
+          discountType,
+          discountValue,
+          maxDiscount
+        )
+      : originalTotal;
+
     try {
-      const res = await fetch("http://localhost:8080/api/v1/orders", {
+      const res = await fetch(`${apiUrl}/api/v1/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -110,9 +206,10 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           user: user!._id,
-          totalAmount,
+          totalAmount: finalAmount,
           status: "pending",
           address: selectedAddressId,
+          promoCode: discountType ? promoCode : undefined,
           items: cart.map((item) => ({
             product: item.productId,
             quantity: item.quantity,
@@ -131,6 +228,14 @@ export default function CheckoutPage() {
         } else {
           throw new Error("Lỗi server: Không phản hồi JSON.");
         }
+      }
+
+      // Cập nhật mã giảm giá (trừ 1 lượt dùng)
+      if (promoCode && discountType) {
+        await fetch(`${apiUrl}/api/v1/promotions/code/${promoCode}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
       }
 
       toast.success("Đặt hàng thành công!");
@@ -213,7 +318,9 @@ export default function CheckoutPage() {
               </Link>
             </div>
           </div>
-
+          <div>
+            <PromotionsList />
+          </div>
           <div className="grid lg:grid-cols-3 gap-4">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
@@ -374,7 +481,7 @@ export default function CheckoutPage() {
                     >
                       <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
-                          src={`http://localhost:8080${item.image}`}
+                          src={`${apiUrl}${item.image}`}
                           alt={item.name}
                           width={56}
                           height={56}
@@ -436,13 +543,80 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
+                  {/* Promo Code Section */}
+                  <div className="border-t border-gray-200 pt-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          placeholder="Nhập mã giảm giá"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                          disabled={discount > 0}
+                        />
+                      </div>
+                      {discount > 0 ? (
+                        <button
+                          onClick={resetPromoCode}
+                          className="px-3 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200"
+                        >
+                          Hủy
+                        </button>
+                      ) : (
+                        <button
+                          onClick={applyPromoCode}
+                          disabled={isApplyingPromo || !promoCode.trim()}
+                          className="px-3 py-2 bg-slate-800 text-white text-sm font-medium rounded-md hover:bg-slate-700 disabled:bg-slate-400"
+                        >
+                          {isApplyingPromo ? "Đang áp dụng..." : "Áp dụng"}
+                        </button>
+                      )}
+                    </div>
+                    {promoError && (
+                      <p className="text-red-500 text-xs">{promoError}</p>
+                    )}
+                    {discountType && (
+                      <div className="flex flex-col gap-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Mã giảm giá</span>
+                          <span className="font-semibold text-emerald-600">
+                            {promoName}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">
+                            {discountType === "percent"
+                              ? `Giảm giá (${discountValue}%)`
+                              : "Giảm giá cố định"}
+                          </span>
+                          <span className="font-semibold text-emerald-600">
+                            -
+                            {discountType === "percent"
+                              ? `${(
+                                  (totalAmount * discountValue) /
+                                  100
+                                ).toLocaleString("vi-VN")} ₫`
+                              : `${discountValue.toLocaleString("vi-VN")} ₫`}
+                          </span>
+                        </div>
+                        {maxDiscount && discountType === "percent" && (
+                          <div className="text-xs text-gray-500">
+                            (Tối đa: {maxDiscount.toLocaleString("vi-VN")} ₫)
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between items-center">
                       <span className="text-base font-bold text-gray-900">
                         Tổng cộng
                       </span>
                       <span className="text-base font-bold bg-gradient-to-r from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                        {totalAmount.toLocaleString("vi-VN")} ₫
+                        {discountedAmount.toLocaleString("vi-VN")} ₫
                       </span>
                     </div>
                   </div>

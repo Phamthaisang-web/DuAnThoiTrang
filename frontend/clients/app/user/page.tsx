@@ -24,7 +24,7 @@ import {
   Crown,
 } from "lucide-react";
 import Link from "next/link";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface PasswordData {
   currentPassword: string;
   newPassword: string;
@@ -145,7 +145,7 @@ export default function UserPage() {
     setIsChangingPassword(true);
     try {
       await axios.put(
-        `http://localhost:8080/api/v1/users/change-password`,
+        `${apiUrl}/api/v1/users/change-password`,
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
@@ -182,7 +182,7 @@ export default function UserPage() {
     setIsUpdatingProfile(true);
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/v1/users/me`,
+        `${apiUrl}/api/v1/users/me`,
         updatedUser,
         {
           headers: {

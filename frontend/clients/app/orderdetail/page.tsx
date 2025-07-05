@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import ConfirmDialog from "@/components/ConfirmDialog"; // nếu không inline
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 type OrderItem = {
   product: string;
   price: number;
@@ -93,7 +93,7 @@ export default function OrderPage() {
   const { ConfirmDialogUI, confirm } = useConfirmDialog();
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/v1/orders/me", {
+      const res = await fetch(`${apiUrl}/api/v1/orders/me`, {
         headers: {
           Authorization: `Bearer ${tokens?.accessToken}`,
         },
@@ -112,17 +112,14 @@ export default function OrderPage() {
     const shouldCancel = await confirm("Bạn có chắc muốn hủy đơn hàng này?");
     if (!shouldCancel) return;
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/v1/orders/${orderId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokens?.accessToken}`,
-          },
-          body: JSON.stringify({ status: "cancelled" }),
-        }
-      );
+      const res = await fetch(`${apiUrl}/api/v1/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokens?.accessToken}`,
+        },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
 
       if (!res.ok) throw new Error("Huỷ đơn hàng thất bại");
       toast.success("Đã hủy đơn hàng");
@@ -137,17 +134,14 @@ export default function OrderPage() {
     if (!confirmReturn) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/v1/orders/${orderId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokens?.accessToken}`,
-          },
-          body: JSON.stringify({ status: "return_requested" }),
-        }
-      );
+      const res = await fetch(`${apiUrl}/api/v1/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokens?.accessToken}`,
+        },
+        body: JSON.stringify({ status: "return_requested" }),
+      });
 
       if (!res.ok) throw new Error("Yêu cầu trả hàng thất bại");
       toast.success("Đã gửi yêu cầu trả hàng");
@@ -164,17 +158,14 @@ export default function OrderPage() {
     if (!confirmRevert) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/v1/orders/${orderId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokens?.accessToken}`,
-          },
-          body: JSON.stringify({ status: "delivered" }),
-        }
-      );
+      const res = await fetch(`${apiUrl}/api/v1/orders/${orderId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokens?.accessToken}`,
+        },
+        body: JSON.stringify({ status: "delivered" }),
+      });
 
       if (!res.ok) throw new Error("Hủy yêu cầu trả hàng thất bại");
       toast.success("Đã hủy yêu cầu trả hàng");

@@ -5,13 +5,14 @@ import validateSchemaYup from "../middlewares/validate.middleware";
 import { authenticateToken } from "../middlewares/auth.middleware";
 const router = express.Router();
 router.get("/promotions", promotionsController.getAllPromotions);
-router.get("/promotions/:id", promotionsController.getByID);
+router.get("/promotions/:code", promotionsController.getPromotionByCode);
 router.post(
   "/promotions",
   authenticateToken,
   validateSchemaYup(promotionsValidation.promotionCreateSchema),
   promotionsController.create
 );
+router.put("/promotions/code/:code", promotionsController.applyPromotionCode);
 router.put(
   "/promotions/:id",
   authenticateToken,

@@ -19,6 +19,9 @@ import PaymentsPage from "./pages/PaymentsPage";
 
 import ProductsPage from "./pages/ProductsPage";
 import OrderDetail from "./pages/OrderDetail";
+import PromotionPage from "./pages/PromotionPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import SettingPage from "./pages/SettingPage";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -48,14 +51,17 @@ function App() {
               <Route path=":id" element={<OrderDetail />} /> {/* /orders/:id */}
             </Route>
 
-            <Route path="payments" element={<PaymentsPage />} />
+            <Route path="promotion" element={<PromotionPage />} />
 
+            <Route path="payments" element={<PaymentsPage />} />
             <Route path="products" element={<ProductsPage />} />
+            <Route path="setting" element={<SettingPage />} />
           </Route>
           {/* Login thi su dung Emptylayout */}
           <Route path="/login" element={<EmptyLayout />}>
             <Route index element={<LoginPage />} />
           </Route>
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
           {/* 404 Not Found */}
           <Route path="*" element={<NoPage />} />
         </Routes>

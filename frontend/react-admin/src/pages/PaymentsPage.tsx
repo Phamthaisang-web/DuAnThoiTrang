@@ -23,6 +23,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
 import dayjs from "dayjs";
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 
@@ -63,7 +64,7 @@ const PaymentPage: React.FC = () => {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/payments", {
+      const res = await axios.get(`${env.API_URL}/api/v1/payments`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setPayments(res.data.data.payments);
@@ -76,7 +77,7 @@ const PaymentPage: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/orders", {
+      const res = await axios.get(`${env.API_URL}/api/v1/orders`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setOrders(res.data.data.orders);
@@ -101,7 +102,7 @@ const PaymentPage: React.FC = () => {
       okType: "danger",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:8080/api/v1/payments/${id}`, {
+          await axios.delete(`${env.API_URL}/api/v1/payments/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           });
           message.success("Xóa thành công");
@@ -122,7 +123,7 @@ const PaymentPage: React.FC = () => {
       if (selectedPayment) {
         // Cập nhật
         await axios.put(
-          `http://localhost:8080/api/v1/payments/${selectedPayment._id}`,
+          `${env.API_URL}/api/v1/payments/${selectedPayment._id}`,
           values,
           {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
@@ -131,7 +132,7 @@ const PaymentPage: React.FC = () => {
         message.success("Cập nhật thành công");
       } else {
         // Thêm mới
-        await axios.post("http://localhost:8080/api/v1/payments", values, {
+        await axios.post(`${env.API_URL}/api/v1/payments`, values, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         });
         message.success("Thêm mới thành công");

@@ -37,7 +37,11 @@ router.post(
   validateSchemaYup(usersValidation.verifyOtpSchema),
   usersController.verifyOtp
 );
-
+router.put(
+  "/user/:id",
+  validateSchemaYup(usersValidation.getUserByIdSchema),
+  usersController.update
+);
 router.put("/users/me", authenticateToken, usersController.updateMe);
 
 // ✅ Route xoá chính mình (nếu có)
@@ -50,5 +54,7 @@ router.put(
 
   usersController.changePassword
 );
+router.post("/forgot-password", usersController.requestResetPassword);
+router.post("/reset-password", usersController.resetPassword);
 
 export default router;

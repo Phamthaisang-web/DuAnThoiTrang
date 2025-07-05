@@ -13,8 +13,20 @@ const ProductAIChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Check screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleSend = async () => {
     const question = input.trim();
@@ -75,33 +87,45 @@ const ProductAIChat = () => {
 
   return (
     <>
-      {/* Chat Button */}
+      {/* Compact Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-20 right-5 z-50 bg-gradient-to-r from-amber-500 to-yellow-600 hover:brightness-110 text-white p-3 rounded-full shadow-lg transition transform hover:scale-105"
+        className={`fixed ${
+          isMobile ? "bottom-4 right-3 p-2" : "bottom-20 right-5 p-3"
+        } z-50 bg-gradient-to-r from-amber-500 to-yellow-600 hover:brightness-110 text-white rounded-full shadow-md transition transform hover:scale-105`}
       >
-        <MessageCircle size={30} />
+        <MessageCircle size={isMobile ? 20 : 30} strokeWidth={1.5} />
       </button>
 
-      {/* Chat Window */}
+      {/* Ultra-Compact Chat Window */}
       {isOpen && (
         <div
           ref={chatRef}
-          className="fixed bottom-20 right-4 z-40 w-[350px] h-[450px] flex flex-col bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-300 transition-all animate-fade-in"
+          className={`fixed ${
+            isMobile
+              ? "bottom-10 inset-x-2 h-[55vh]"
+              : "bottom-20 right-4 w-[350px] h-[450px]"
+          } z-40 flex flex-col bg-white shadow-md rounded-lg overflow-hidden border border-gray-200 transition-all animate-fade-in`}
         >
-          {/* Header */}
-          <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400  text-white">
-            <span className="font-semibold text-lg">🤖 Trợ lý Sản phẩm AI</span>
+          {/* Minimal Header */}
+          <div className="p-2 border-b flex items-center justify-between bg-gradient-to-r from-blue-400 to-purple-400 text-white">
+            <span className={`font-medium ${isMobile ? "text-xs" : "text-sm"}`}>
+              🤖 AI Assistant
+            </span>
             <button
-              className="hover:text-red-300 transition"
+              className="hover:text-red-200 transition p-1"
               onClick={() => setIsOpen(false)}
             >
-              <X size={20} />
+              <X size={isMobile ? 14 : 18} strokeWidth={1.5} />
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50 text-sm">
+          {/* Compact Messages */}
+          <div
+            className={`flex-1 overflow-y-auto ${
+              isMobile ? "px-1 py-1" : "px-2 py-2"
+            } space-y-1 bg-gray-50 text-xs`}
+          >
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -110,13 +134,17 @@ const ProductAIChat = () => {
                 }`}
               >
                 <div
-                  className={`px-4 py-2 rounded-2xl max-w-[75%] whitespace-pre-wrap ${
+                  className={`${
+                    isMobile ? "px-2 py-1" : "px-3 py-1.5"
+                  } rounded-md ${
+                    isMobile ? "max-w-[92%]" : "max-w-[80%]"
+                  } whitespace-pre-wrap leading-snug ${
                     msg.sender === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-900"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  {msg.sender === "bot" && <span>💡</span>}
+                  {msg.sender === "bot" && <span className="mr-1">💡</span>}
                   <span>{msg.text}</span>
                 </div>
               </div>
@@ -124,8 +152,14 @@ const ProductAIChat = () => {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="px-4 py-2 rounded-2xl bg-gray-200 text-gray-800 max-w-[75%] text-sm flex items-center space-x-1">
-                  <span>Đang soạn câu trả lời</span>
+                <div
+                  className={`${
+                    isMobile ? "px-2 py-1" : "px-3 py-1.5"
+                  } rounded-md bg-gray-200 text-gray-800 ${
+                    isMobile ? "max-w-[92%]" : "max-w-[80%]"
+                  } text-xs flex items-center space-x-1`}
+                >
+                  <span>Đang trả lời...</span>
                   <span className="typing-dot">.</span>
                   <span className="typing-dot delay-200">.</span>
                   <span className="typing-dot delay-400">.</span>
@@ -136,11 +170,11 @@ const ProductAIChat = () => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Input Area */}
-          <div className="p-1 border-t bg-white">
+          {/* Minimal Input Area */}
+          <div className={`${isMobile ? "p-1" : "p-1.5"} border-t bg-white`}>
             <textarea
-              rows={2}
-              className="w-full p-1 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              rows={1}
+              className="w-full p-1.5 text-xs border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
               placeholder="Nhập câu hỏi..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -150,15 +184,17 @@ const ProductAIChat = () => {
             <button
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="mt-1 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl disabled:opacity-50 text-sm transition"
+              className={`mt-1 w-full bg-blue-500 hover:bg-blue-600 text-white ${
+                isMobile ? "py-1.5 text-xs" : "py-2 text-xs"
+              } rounded-md disabled:opacity-50 transition`}
             >
-              {loading ? "Đang xử lý..." : "Gửi"}
+              {loading ? "..." : "Gửi"}
             </button>
           </div>
         </div>
       )}
 
-      {/* CSS Animations */}
+      {/* Optimized CSS Animations */}
       <style jsx>{`
         .typing-dot {
           animation: typing 1s infinite ease-in-out;
@@ -184,7 +220,7 @@ const ProductAIChat = () => {
         @keyframes fade-in {
           0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(8px);
           }
           100% {
             opacity: 1;
@@ -193,7 +229,7 @@ const ProductAIChat = () => {
         }
 
         .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
+          animation: fade-in 0.15s ease-out;
         }
       `}</style>
     </>

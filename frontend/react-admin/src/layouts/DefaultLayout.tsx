@@ -3,15 +3,16 @@
 import React, { useState } from "react";
 import { Layout, Menu, Breadcrumb, Space, theme } from "antd";
 import {
-  FileOutlined,
-  PieChartOutlined,
   UserOutlined,
   ShoppingCartOutlined,
-  FolderOutlined,
-  StarOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  AppstoreOutlined,
+  DashboardOutlined,
+  TagsOutlined,
+  FolderOpenOutlined,
+  AppstoreAddOutlined,
+  GiftOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import UserInfo from "../components/UserInfo";
@@ -35,12 +36,14 @@ function getItem(
 }
 
 const items: CustomMenuItem[] = [
-  getItem("Dashboard", "", <PieChartOutlined />),
-  getItem("User", "users", <UserOutlined />),
-  getItem("Brand", "brands", <StarOutlined />),
-  getItem("Category", "categories", <FolderOutlined />),
-  getItem("Products", "products", <AppstoreOutlined />),
-  getItem("Orders", "orders", <ShoppingCartOutlined />),
+  getItem("Dashboard", "", <DashboardOutlined />),
+  getItem("Người dùng", "users", <UserOutlined />),
+  getItem("Thương hiệu", "brands", <TagsOutlined />),
+  getItem("Danh mục", "categories", <FolderOpenOutlined />),
+  getItem("Sản phẩm", "products", <AppstoreAddOutlined />),
+  getItem("Đơn hàng", "orders", <ShoppingCartOutlined />),
+  getItem("Khuyến mãi", "promotion", <GiftOutlined />),
+  getItem("Cài đặt", "setting", <SettingOutlined />),
 ];
 
 const getBreadcrumbItems = (pathname: string) => {

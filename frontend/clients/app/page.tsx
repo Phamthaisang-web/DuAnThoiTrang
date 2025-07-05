@@ -16,6 +16,7 @@ import {
   Play,
 } from "lucide-react";
 import Link from "next/link";
+import PromotionsList from "@/components/PromotionList";
 
 interface Product {
   _id: string;
@@ -278,15 +279,17 @@ export default function Home() {
               >
                 <ChevronLeft className="w-6 h-6 text-gray-600 group-hover:text-gray-800" />
               </button>
-
               {/* Vùng scroll sản phẩm */}
               <div
                 ref={scrollRef2}
-                className="flex overflow-x-auto space-x-8 scrollbar-hide scroll-smooth py-8 "
+                className="flex overflow-x-auto space-x-4 md:space-x-8 scrollbar-hide scroll-smooth py-4 md:py-8"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
                 {products.map((product) => (
-                  <div key={product._id} className="flex-shrink-0 w-[250px]">
+                  <div
+                    key={product._id}
+                    className="flex-shrink-0 w-[160px] sm:w-[180px] md:w-[250px]"
+                  >
                     <CardProduct product={product} />
                   </div>
                 ))}
@@ -305,6 +308,19 @@ export default function Home() {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+      <div className="py-20 px-4 md:px-8 lg:px-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-4">
+            Ưu Đãi Đặc Biệt
+          </h2>
+          <p className="text-lg text-gray-600 text-center max-w-2xl mx-auto mb-10">
+            Đừng bỏ lỡ các chương trình khuyến mãi hấp dẫn và ưu đãi giới hạn từ
+            các thương hiệu thời trang hàng đầu. Mua sắm ngay để nhận quà tặng
+            độc quyền và giảm giá cực sốc!
+          </p>
+          <PromotionsList />
         </div>
       </div>
 

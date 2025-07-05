@@ -7,7 +7,9 @@ import { useCart } from "@/context/CartContext";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { CartItem } from "@/types/cart";
 import toast from "react-hot-toast";
-
+import CardProduct from "@/components/CardProduct";
+import { ArrowLeft } from "lucide-react";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Product {
   _id: string;
   name: string;
@@ -17,17 +19,9 @@ interface Product {
   sizes: string[];
   colors: string[];
   stockQuantity: number;
-
   images: { url: string; altText?: string }[];
-  category: { _id: string; name: string; slug: string };
+  category: { _id: string; name: string; slug: string } | string[];
   brand: { _id: string; name: string; slug: string };
-}
-
-async function getProduct(id: string): Promise<Product> {
-  const res = await fetch(`http://localhost:8080/api/v1/products/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch product");
-  const json = await res.json();
-  return json.data;
 }
 
 export default function ProductDetailPage() {
@@ -36,25 +30,79 @@ export default function ProductDetailPage() {
   const router = useRouter();
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const { addToCart } = useCart();
   const { user, hydrated } = useAuthStore();
-  const [isAdding, setIsAdding] = useState(false); // thêm dòng này
+
+  const fetchProduct = async (slug: string) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/products/${slug}`);
+      if (!res.ok) throw new Error("Không thể tải sản phẩm");
+
+      const json = await res.json();
+      const p = json.data as Product;
+      setProduct(p);
+
+      const categoryId = Array.isArray(p.category)
+        ? p.category[0]
+        : p.category?._id;
+
+      if (categoryId && categoryId.length === 24) {
+        const related = await getRelatedProducts(categoryId, p._id);
+        setRelatedProducts(related);
+      } else {
+        console.warn("Invalid category ID:", p.category);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi khi tải sản phẩm");
+    }
+  };
+
+  const getRelatedProducts = async (
+    categoryId: string,
+    excludeProductId: string
+  ): Promise<Product[]> => {
+    try {
+      const res = await fetch(
+        `${apiUrl}/api/v1/products?category=${categoryId}`
+      );
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Lỗi server: ${errText}`);
+      }
+
+      const json = await res.json();
+      const all: Product[] = json.data?.products || json.data || [];
+      return all.filter((p: Product) => p._id !== excludeProductId);
+    } catch (error) {
+      console.error("Lỗi khi lấy sản phẩm liên quan:", error);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    if (!slug) return;
-    getProduct(slug)
-      .then((p) => setProduct(p))
-      .catch((err) => console.error(err));
+    if (slug) {
+      fetchProduct(slug);
+    }
   }, [slug]);
 
-  if (!product) return <div className="p-8">Đang tải sản phẩm...</div>;
+  if (!product) {
+    return (
+      <div className="p-8 animate-pulse space-y-4">
+        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="h-64 bg-gray-100 rounded"></div>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
-    if (isAdding) return; // tránh click liên tục
-
-    if (!hydrated) return;
+    if (isAdding || !hydrated) return;
 
     if (!user) {
       toast.custom((t) => (
@@ -89,7 +137,7 @@ export default function ProductDetailPage() {
       return;
     }
 
-    setIsAdding(true); // ✅ chỉ đặt ở đây, sau khi mọi điều kiện hợp lệ
+    setIsAdding(true);
 
     const cartItem: CartItem = {
       productId: product._id,
@@ -114,7 +162,14 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 text-sm">
+    <div className="container mx-auto px-4 md:px-8 py-10 text-sm text-gray-700">
+      <button
+        onClick={() => router.back()}
+        className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Quay lại
+      </button>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <ProductImageSlider
           images={product.images}
@@ -122,27 +177,29 @@ export default function ProductDetailPage() {
         />
 
         <div>
-          <h1 className="text-xl font-bold mb-4">{product.name}</h1>
-          <p className="text-xl text-red-600 mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">
+            {product.name}
+          </h1>
+          <p className="text-2xl text-red-600 font-semibold mb-4 animate-pulse">
             {new Intl.NumberFormat("vi-VN", {
               style: "currency",
               currency: "VND",
             }).format(product.price)}
           </p>
-          <p className="mb-6">{product.description}</p>
+          <p className="mb-6 text-gray-600">{product.description}</p>
 
           {product.sizes.length > 0 && (
             <div className="mb-4">
-              <h3 className="font-medium mb-2">Kích cỡ:</h3>
+              <h3 className="font-semibold mb-2">Kích cỡ:</h3>
               <div className="flex flex-wrap gap-2">
                 {product.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 border rounded ${
+                    className={`px-4 py-2 border rounded-full font-medium transition duration-200 ${
                       selectedSize === size
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-black text-white border-black"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     {size}
@@ -154,16 +211,16 @@ export default function ProductDetailPage() {
 
           {product.colors.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Màu sắc:</h3>
+              <h3 className="font-semibold mb-2">Màu sắc:</h3>
               <div className="flex flex-wrap gap-2">
                 {product.colors.map((color) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 border rounded ${
+                    className={`px-4 py-2 border rounded-full font-medium transition duration-200 ${
                       selectedColor === color
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-100"
+                        ? "bg-black text-white border-black"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     {color}
@@ -177,19 +234,35 @@ export default function ProductDetailPage() {
             <button
               onClick={handleAddToCart}
               disabled={isAdding}
-              className={`bg-black text-white px-6 py-3 rounded transition-colors duration-300
-    ${
-      isAdding
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:bg-white hover:text-black hover:border"
-    }
-  `}
+              className={`w-full mt-4 px-6 py-3 text-center rounded-full font-semibold transition-colors duration-300 border ${
+                isAdding
+                  ? "bg-gray-300 text-gray-700 cursor-not-allowed"
+                  : "bg-black text-white hover:bg-white hover:text-black hover:border-black"
+              }`}
             >
-              {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
+              {isAdding ? "Đang thêm..." : "🛒 Thêm vào giỏ hàng"}
             </button>
           )}
         </div>
       </div>
+
+      {relatedProducts.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-xl font-semibold mb-6 text-gray-800">
+            Sản phẩm liên quan
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {relatedProducts.slice(0, 8).map((item) => (
+              <div
+                key={item._id}
+                className="transition-transform transform hover:scale-105 duration-300"
+              >
+                <CardProduct product={item} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

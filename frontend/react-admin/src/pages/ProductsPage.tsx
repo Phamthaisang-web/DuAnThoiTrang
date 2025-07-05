@@ -26,6 +26,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
 import type { UploadFile } from "antd/es/upload/interface";
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -68,6 +69,16 @@ const ProductPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [uploadedImages, setUploadedImages] = useState<UploadFile[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<
+    string | null
+  >(null);
+  const [selectedBrandFilter, setSelectedBrandFilter] = useState<string | null>(
+    null
+  );
+  const [selectedStockFilter, setSelectedStockFilter] = useState<string | null>(
+    null
+  );
 
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -85,7 +96,7 @@ const ProductPage: React.FC = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/products", {
+      const res = await axios.get(`${env.API_URL}/api/v1/products`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setProducts(res.data.data.products || []);
@@ -98,7 +109,7 @@ const ProductPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/categories", {
+      const res = await axios.get(`${env.API_URL}/api/v1/categories`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setCategories(res.data.data.categories);
@@ -109,7 +120,7 @@ const ProductPage: React.FC = () => {
 
   const fetchBrands = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/brands", {
+      const res = await axios.get(`${env.API_URL}/api/v1/brands`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setBrands(res.data.data.brand);
@@ -142,7 +153,7 @@ const ProductPage: React.FC = () => {
         uid: `${index}`,
         name: img.altText || `image-${index + 1}.jpg`,
         status: "done",
-        url: `http://localhost:8080${img.url}`,
+        url: `${env.API_URL}${img.url}`,
         response: { url: img.url },
       }))
     );
@@ -156,7 +167,7 @@ const ProductPage: React.FC = () => {
       okType: "danger",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:8080/api/v1/products/${id}`, {
+          await axios.delete(`${env.API_URL}/api/v1/products/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           });
           message.success("Xóa sản phẩm thành công");
@@ -167,6 +178,26 @@ const ProductPage: React.FC = () => {
       },
     });
   };
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+
+    const matchesCategory =
+      !selectedCategoryFilter ||
+      product.category?.some((cat) => cat._id === selectedCategoryFilter);
+
+    const matchesBrand =
+      !selectedBrandFilter || product.brand?._id === selectedBrandFilter;
+
+    const matchesStock =
+      !selectedStockFilter ||
+      (selectedStockFilter === "available" && product.stockQuantity > 0) ||
+      (selectedStockFilter === "out-of-stock" && product.stockQuantity === 0);
+
+    return matchesSearch && matchesCategory && matchesBrand && matchesStock;
+  });
 
   const handleSave = async () => {
     try {
@@ -193,14 +224,12 @@ const ProductPage: React.FC = () => {
         colors: values.colors || [],
         category: values.category || [],
       };
-      console.log("🟢 Categories gửi lên:", values.categories);
-      console.log("🟢 Payload đang gửi lên server:", payload);
 
       setSaving(true);
 
       if (selectedProduct) {
         await axios.put(
-          `http://localhost:8080/api/v1/products/${selectedProduct._id}`,
+          `${env.API_URL}/api/v1/products/${selectedProduct._id}`,
           payload,
           {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
@@ -208,7 +237,7 @@ const ProductPage: React.FC = () => {
         );
         message.success("Cập nhật sản phẩm thành công");
       } else {
-        await axios.post("http://localhost:8080/api/v1/products", payload, {
+        await axios.post(`${env.API_URL}/api/v1/products`, payload, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         });
         message.success("Tạo sản phẩm mới thành công");
@@ -223,6 +252,7 @@ const ProductPage: React.FC = () => {
       setSaving(false);
     }
   };
+
   const columns = [
     {
       title: "Ảnh",
@@ -231,7 +261,7 @@ const ProductPage: React.FC = () => {
       render: (_: any, record: Product) =>
         record.images?.[0]?.url ? (
           <img
-            src={`http://localhost:8080${record.images[0].url}`}
+            src={`${env.API_URL}${record.images[0].url}`}
             alt={record.name}
             style={{
               width: 50,
@@ -244,14 +274,19 @@ const ProductPage: React.FC = () => {
           <span>Không có ảnh</span>
         ),
     },
-    { title: "Tên Sản Phẩm", dataIndex: "name", key: "name" },
+    {
+      title: "Tên Sản Phẩm",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a: Product, b: Product) => a.name.localeCompare(b.name),
+    },
     {
       title: "Giá",
       dataIndex: "price",
       key: "price",
       render: (value: number) => `${value.toLocaleString()}₫`,
+      sorter: (a: Product, b: Product) => a.price - b.price,
     },
-    // ✅ Thêm cột "Kích cỡ"
     {
       title: "Kích cỡ",
       dataIndex: "sizes",
@@ -259,8 +294,6 @@ const ProductPage: React.FC = () => {
       render: (sizes: string[]) =>
         sizes && sizes.length > 0 ? sizes.join(", ") : "—",
     },
-
-    // ✅ Thêm cột "Màu sắc"
     {
       title: "Màu sắc",
       dataIndex: "colors",
@@ -273,11 +306,9 @@ const ProductPage: React.FC = () => {
                 key={idx}
                 style={{
                   backgroundColor: color,
-
                   padding: "2px 8px",
                   borderRadius: 4,
                   fontSize: 12,
-                  textTransform: "capitalize",
                 }}
               >
                 {color}
@@ -288,7 +319,6 @@ const ProductPage: React.FC = () => {
           "—"
         ),
     },
-
     { title: "Tồn kho", dataIndex: "stockQuantity", key: "stockQuantity" },
     {
       title: "Danh Mục",
@@ -314,13 +344,15 @@ const ProductPage: React.FC = () => {
       title: "Thương Hiệu",
       dataIndex: ["brand", "name"],
       key: "brand",
-      render: (_: any, record: any) => record?.brand?.name || "—",
+      render: (_: any, record: Product) => record?.brand?.name || "—",
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date: string) => new Date(date).toLocaleString("vi-VN"),
+      sorter: (a: Product, b: Product) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
       title: "Thao tác",
@@ -355,145 +387,66 @@ const ProductPage: React.FC = () => {
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={products}
-        rowKey="_id"
-        loading={loading}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <Input.Search
+          placeholder="Tìm theo tên sản phẩm"
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 280 }}
+        />
 
-      <Modal
-        open={isModalOpen}
-        onOk={handleSave}
-        onCancel={() => setIsModalOpen(false)}
-        confirmLoading={saving}
-        title={selectedProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm"}
-        width={700}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Tên sản phẩm"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="description" label="Mô tả">
-            <TextArea rows={3} />
-          </Form.Item>
-          <Form.Item
-            name="price"
-            label="Giá (VNĐ)"
-            rules={[{ required: true }]}
-          >
-            <InputNumber<number>
-              min={0}
-              className="w-full"
-              formatter={(value) =>
-                value
-                  ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "₫"
-                  : ""
-              }
-              parser={(value) =>
-                value
-                  ? parseInt(
-                      value.replace(/[₫.]/g, "").replace(/[^0-9]/g, ""),
-                      10
-                    )
-                  : 0
-              }
-            />
-          </Form.Item>
-          <Form.Item
-            name="stockQuantity"
-            label="Số lượng tồn"
-            rules={[{ required: true }]}
-          >
-            <InputNumber min={0} className="w-full" />
-          </Form.Item>
-
-          <Form.Item label="Ảnh sản phẩm">
-            <Upload
-              name="file"
-              listType="picture-card"
-              multiple
-              action="http://localhost:8080/api/v1/upload"
-              headers={{ Authorization: `Bearer ${tokens?.accessToken || ""}` }}
-              fileList={uploadedImages}
-              onChange={({ file, fileList }) => {
-                setUploadedImages(fileList);
-                if (file.status === "done")
-                  message.success("Tải ảnh thành công");
-                if (file.status === "error") message.error("Tải ảnh thất bại");
-              }}
-              onRemove={(file) => {
-                setUploadedImages((prev) =>
-                  prev.filter((f) => f.uid !== file.uid)
-                );
-              }}
-            >
-              {uploadedImages.length < 8 && (
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Tải ảnh</div>
-                </div>
-              )}
-            </Upload>
-          </Form.Item>
-
-          <Form.Item name="category" label="Danh mục">
-            <Select
-              mode="multiple"
-              placeholder="Chọn danh mục"
-              allowClear
-              options={categories.map((cat) => ({
+        <div className="flex gap-2 flex-wrap">
+          <Select
+            placeholder="Tất cả danh mục"
+            allowClear
+            style={{ width: 180 }}
+            value={selectedCategoryFilter || undefined}
+            onChange={(value) => setSelectedCategoryFilter(value || null)}
+            options={[
+              { label: "Tất cả", value: null },
+              ...categories.map((cat) => ({
                 label: cat.name,
                 value: cat._id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="brand" label="Thương hiệu">
-            <Select
-              placeholder="Chọn thương hiệu"
-              allowClear
-              options={brands.map((b) => ({ label: b.name, value: b._id }))}
-            />
-          </Form.Item>
+              })),
+            ]}
+          />
 
-          <Form.Item name="sizes" label="Kích cỡ">
-            <div className="flex flex-wrap gap-2">
-              {sizeOptions.map((size) => {
-                const isSelected = selectedSizes.includes(size);
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => {
-                      const newSizes = isSelected
-                        ? selectedSizes.filter((s) => s !== size)
-                        : [...selectedSizes, size];
-                      setSelectedSizes(newSizes);
-                      form.setFieldValue("sizes", newSizes);
-                    }}
-                    className={`px-4 py-2 rounded-lg border font-semibold transition-all duration-200
-                      ${
-                        isSelected
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-800 border-gray-300 hover:border-blue-400"
-                      }`}
-                  >
-                    {size}
-                  </button>
-                );
-              })}
-            </div>
-          </Form.Item>
+          <Select
+            placeholder="Tất cả thương hiệu"
+            allowClear
+            style={{ width: 180 }}
+            value={selectedBrandFilter || undefined}
+            onChange={(value) => setSelectedBrandFilter(value || null)}
+            options={[
+              { label: "Tất cả", value: null },
+              ...brands.map((brand) => ({
+                label: brand.name,
+                value: brand._id,
+              })),
+            ]}
+          />
 
-          <Form.Item name="colors" label="Màu sắc">
-            <Select mode="tags" placeholder="Nhập các màu" />
-          </Form.Item>
-        </Form>
-      </Modal>
+          <Select
+            placeholder="Lọc theo tồn kho"
+            allowClear
+            style={{ width: 160 }}
+            value={selectedStockFilter || undefined}
+            onChange={(value) => setSelectedStockFilter(value || null)}
+            options={[
+              { label: "Còn hàng", value: "available" },
+              { label: "Hết hàng", value: "out-of-stock" },
+            ]}
+          />
+        </div>
+      </div>
+
+      <Table
+        columns={columns}
+        dataSource={filteredProducts}
+        rowKey="_id"
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 };

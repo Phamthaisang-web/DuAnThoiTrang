@@ -99,10 +99,15 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className="group flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-3 py-2 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-[0.98] shadow-md hover:shadow-lg whitespace-nowrap min-w-[100px] sm:min-w-[120px]"
                 >
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">Đăng Nhập</span>
+                  {/* Icon sẽ thu nhỏ trên mobile */}
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+
+                  {/* Text luôn giữ nguyên một dòng */}
+                  <span className="text-xs sm:text-sm font-medium">
+                    Đăng Nhập
+                  </span>
                 </Link>
               )}
 

@@ -136,6 +136,38 @@ const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+const requestResetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body;
+    if (!email) throw createHttpError(400, "Email là bắt buộc");
+
+    const result = await usersService.requestResetPassword(email);
+    sendJsonSuccess(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      throw createHttpError(400, "Email, OTP và mật khẩu mới là bắt buộc");
+    }
+
+    const result = await usersService.resetPassword(email, otp, newPassword);
+    sendJsonSuccess(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   getAllUsers,
@@ -148,4 +180,6 @@ export default {
   requestOtp,
   verifyOtp,
   changePassword,
+  requestResetPassword, // ✅ mới
+  resetPassword,
 };

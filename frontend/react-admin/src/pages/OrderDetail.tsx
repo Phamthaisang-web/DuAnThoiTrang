@@ -6,6 +6,7 @@ import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { Typography, Tag, Descriptions, message, Button } from "antd";
 import "../styles/print.css"; // Nếu bạn có file CSS riêng, hoặc dùng global CSS
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 
@@ -75,7 +76,7 @@ export default function OrderDetail() {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8080/api/v1/orders/${id}`, {
+      const res = await axios.get(`${env.API_URL}/api/v1/orders/${id}`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setOrder(res.data.data);
@@ -89,7 +90,7 @@ export default function OrderDetail() {
   const fetchOrderDetails = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/v1/order-details?orderId=${id}`,
+        `${env.API_URL}/api/v1/order-details?orderId=${id}`,
         {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         }

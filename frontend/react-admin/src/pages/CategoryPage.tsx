@@ -22,6 +22,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -76,7 +77,7 @@ const CategoryPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/categories", {
+      const res = await axios.get(`${env.API_URL}/api/v1/categories`, {
         headers: { Authorization: `Bearer ${tokens.accessToken}` },
         params: {
           page: pagination.page,
@@ -96,7 +97,7 @@ const CategoryPage: React.FC = () => {
 
   const fetchParentCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/categories", {
+      const res = await axios.get(`${env.API_URL}/api/v1/categories`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         params: { limit: 1000 },
       });
@@ -131,7 +132,7 @@ const CategoryPage: React.FC = () => {
       okType: "danger",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:8080/api/v1/categories/${id}`, {
+          await axios.delete(`${env.API_URL}/api/v1/categories/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           });
           message.success("Xóa danh mục thành công");
@@ -151,7 +152,7 @@ const CategoryPage: React.FC = () => {
       if (selectedCategory) {
         console.log("TOKEN in OrdersPage", tokens?.accessToken);
         await axios.put(
-          `http://localhost:8080/api/v1/categories/${selectedCategory._id}`,
+          `${env.API_URL}/api/v1/categories/${selectedCategory._id}`,
           values,
           {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
@@ -159,7 +160,7 @@ const CategoryPage: React.FC = () => {
         );
         message.success("Cập nhật danh mục thành công");
       } else {
-        await axios.post("http://localhost:8080/api/v1/categories", values, {
+        await axios.post(`${env.API_URL}/api/v1/categories`, values, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
         });
         message.success("Tạo mới danh mục thành công");

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { CartItem } from "@/types/cart";
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard } from "lucide-react";
 import toast from "react-hot-toast";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export default function CartPage() {
   const { cart, clearCart, removeFromCart, updateQuantity } = useCart();
   const { user, tokens } = useAuthStore();
@@ -104,7 +104,7 @@ export default function CartPage() {
                     <div className="flex gap-4">
                       <div className="flex-shrink-0">
                         <Image
-                          src={`http://localhost:8080${item.image}`}
+                          src={`${apiUrl}${item.image}`}
                           alt={item.name}
                           width={80}
                           height={80}

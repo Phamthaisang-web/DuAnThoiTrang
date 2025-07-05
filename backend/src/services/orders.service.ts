@@ -157,6 +157,7 @@ const createOrder = async (orderData: any) => {
 
     savedDetails.push(orderDetail);
   }
+
   const userDoc = await userModel.findById(user);
   if (!userDoc || !userDoc.email) {
     throw new Error("Không tìm thấy thông tin người dùng hợp lệ để gửi email");
@@ -180,12 +181,12 @@ const createOrder = async (orderData: any) => {
     const mailOptions = {
       from: env.EMAIL_ACCOUNT,
       to: userDoc.email,
-      subject: `Xác nhận đơn hàng từ Cửa Hàng ABC - ${new Date().toLocaleDateString()}`,
+      subject: `Xác nhận đơn hàng từ LUXURY FASHION - ${new Date().toLocaleDateString()}`,
       html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <h2>Xin chào ${user.fullName},</h2>
+        <h2>Xin chào ${userDoc.fullName},</h2>
 
-        <p>Cảm ơn bạn đã đặt hàng tại <strong>Cửa Hàng ABC</strong>! 🎉</p>
+        <p>Cảm ơn bạn đã đặt hàng tại <strong>LUXURY FASHION</strong>! 🎉</p>
 
         <p>Dưới đây là thông tin đơn hàng của bạn:</p>
 
@@ -215,7 +216,7 @@ const createOrder = async (orderData: any) => {
         <p><strong>Tổng thanh toán:</strong> ${finalAmount.toLocaleString()} đ</p>
 
 
-        <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ Cửa Hàng ABC</strong></p>
+        <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ LUXURY FASHION</strong></p>
 
         <hr style="margin-top: 40px;" />
         <p style="font-size: 12px; color: #888;">

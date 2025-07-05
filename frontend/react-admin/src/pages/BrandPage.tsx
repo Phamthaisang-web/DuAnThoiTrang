@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -11,87 +11,88 @@ import {
   message,
   Typography,
   Upload,
-} from "antd"
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
   TrademarkOutlined,
-} from "@ant-design/icons"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import { useAuthStore } from "../stores/useAuthStore"
-import type { UploadFile } from "antd/es/upload/interface"
+} from "@ant-design/icons";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
+import type { UploadFile } from "antd/es/upload/interface";
+import { env } from "../constants/getEnvs";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 interface Brand {
-  _id: string
-  name: string
-  logo?: string
-  country?: string
-  slug: string
-  createdAt: string
+  _id: string;
+  name: string;
+  logo?: string;
+  country?: string;
+  slug: string;
+  createdAt: string;
 }
 
 const BrandPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { tokens } = useAuthStore()
-  const [form] = Form.useForm()
-  const [brands, setBrands] = useState<Brand[]>([])
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null)
-  const [uploadedLogo, setUploadedLogo] = useState<UploadFile[]>([])
+  const navigate = useNavigate();
+  const { tokens } = useAuthStore();
+  const [form] = Form.useForm();
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  const [uploadedLogo, setUploadedLogo] = useState<UploadFile[]>([]);
 
   useEffect(() => {
     if (!tokens?.accessToken) {
-      message.warning("Vui lòng đăng nhập")
-      navigate("/login")
+      message.warning("Vui lòng đăng nhập");
+      navigate("/login");
     } else {
-      fetchBrands()
+      fetchBrands();
     }
-  }, [tokens])
+  }, [tokens]);
 
   const fetchBrands = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/brands", {
+      const res = await axios.get(`${env.API_URL}/api/v1/brands`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-      })
-      setBrands(res.data.data.brand)
+      });
+      setBrands(res.data.data.brand);
     } catch {
-      message.error("Lỗi khi lấy danh sách thương hiệu")
+      message.error("Lỗi khi lấy danh sách thương hiệu");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAdd = () => {
-    form.resetFields()
-    setSelectedBrand(null)
-    setUploadedLogo([])
-    setIsModalOpen(true)
-  }
+    form.resetFields();
+    setSelectedBrand(null);
+    setUploadedLogo([]);
+    setIsModalOpen(true);
+  };
 
   const handleEdit = (brand: Brand) => {
-    setSelectedBrand(brand)
-    form.setFieldsValue(brand)
+    setSelectedBrand(brand);
+    form.setFieldsValue(brand);
     if (brand.logo) {
       setUploadedLogo([
         {
           uid: "-1",
           name: "logo.jpg",
           status: "done",
-          url: `http://localhost:8080${brand.logo}`,
+          url: `${env.API_URL}${brand.logo}`,
           response: { url: brand.logo },
         },
-      ])
+      ]);
     }
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -100,54 +101,54 @@ const BrandPage: React.FC = () => {
       okType: "danger",
       onOk: async () => {
         try {
-          await axios.delete(`http://localhost:8080/api/v1/brands/${id}`, {
+          await axios.delete(`${env.API_URL}/api/v1/brands/${id}`, {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-          })
-          message.success("Xóa thương hiệu thành công")
-          fetchBrands()
+          });
+          message.success("Xóa thương hiệu thành công");
+          fetchBrands();
         } catch {
-          message.error("Lỗi khi xóa thương hiệu")
+          message.error("Lỗi khi xóa thương hiệu");
         }
       },
-    })
-  }
+    });
+  };
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields()
-      const logo = uploadedLogo?.[0]?.response?.url
+      const values = await form.validateFields();
+      const logo = uploadedLogo?.[0]?.response?.url;
 
       const payload = {
         ...values,
         logo,
-      }
+      };
 
-      setSaving(true)
+      setSaving(true);
 
       if (selectedBrand) {
         await axios.put(
-          `http://localhost:8080/api/v1/brands/${selectedBrand._id}`,
+          `${env.API_URL}/api/v1/brands/${selectedBrand._id}`,
           payload,
           {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           }
-        )
-        message.success("Cập nhật thương hiệu thành công")
+        );
+        message.success("Cập nhật thương hiệu thành công");
       } else {
-        await axios.post("http://localhost:8080/api/v1/brands", payload, {
+        await axios.post(`${env.API_URL}/api/v1/brands`, payload, {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        })
-        message.success("Tạo thương hiệu mới thành công")
+        });
+        message.success("Tạo thương hiệu mới thành công");
       }
 
-      setIsModalOpen(false)
-      fetchBrands()
+      setIsModalOpen(false);
+      fetchBrands();
     } catch {
-      message.error("Lỗi khi lưu thương hiệu")
+      message.error("Lỗi khi lưu thương hiệu");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const columns = [
     {
@@ -155,13 +156,13 @@ const BrandPage: React.FC = () => {
       dataIndex: "logo",
       render: (logo: string) =>
         logo ? (
-          <img src={`http://localhost:8080${logo}`} alt="logo" style={{ width: 50 }} />
+          <img src={`${env.API_URL}${logo}`} alt="logo" style={{ width: 50 }} />
         ) : (
           "Không có"
         ),
     },
     { title: "Tên", dataIndex: "name", key: "name" },
-    
+
     { title: "Quốc gia", dataIndex: "country", key: "country" },
     {
       title: "Ngày tạo",
@@ -177,13 +178,17 @@ const BrandPage: React.FC = () => {
           <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             Sửa
           </Button>
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)}>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record._id)}
+          >
             Xóa
           </Button>
         </Space>
       ),
     },
-  ]
+  ];
 
   return (
     <div className="p-4 max-w-5xl mx-auto">
@@ -196,7 +201,12 @@ const BrandPage: React.FC = () => {
         </Button>
       </div>
 
-      <Table columns={columns} dataSource={brands} rowKey="_id" loading={loading} />
+      <Table
+        columns={columns}
+        dataSource={brands}
+        rowKey="_id"
+        loading={loading}
+      />
 
       <Modal
         open={isModalOpen}
@@ -206,10 +216,14 @@ const BrandPage: React.FC = () => {
         title={selectedBrand ? "Chỉnh sửa thương hiệu" : "Thêm thương hiệu"}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Tên thương hiệu" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label="Tên thương hiệu"
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
-          
+
           <Form.Item name="country" label="Quốc gia">
             <Input />
           </Form.Item>
@@ -218,16 +232,19 @@ const BrandPage: React.FC = () => {
             <Upload
               name="file"
               listType="picture-card"
-              action="http://localhost:8080/api/v1/upload"
+              action={`${env.API_URL}/api/v1/upload`}
               headers={{ Authorization: `Bearer ${tokens?.accessToken || ""}` }}
               fileList={uploadedLogo}
               onChange={({ file, fileList }) => {
-                setUploadedLogo(fileList)
-                if (file.status === "done") message.success("Tải ảnh thành công")
-                if (file.status === "error") message.error("Tải ảnh thất bại")
+                setUploadedLogo(fileList);
+                if (file.status === "done")
+                  message.success("Tải ảnh thành công");
+                if (file.status === "error") message.error("Tải ảnh thất bại");
               }}
               onRemove={(file) => {
-                setUploadedLogo((prev) => prev.filter((f) => f.uid !== file.uid))
+                setUploadedLogo((prev) =>
+                  prev.filter((f) => f.uid !== file.uid)
+                );
               }}
               maxCount={1}
             >
@@ -242,7 +259,7 @@ const BrandPage: React.FC = () => {
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default BrandPage
+export default BrandPage;

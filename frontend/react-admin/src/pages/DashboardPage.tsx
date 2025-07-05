@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -10,8 +11,6 @@ import {
   Select,
   message,
 } from "antd";
-import axios from "axios";
-import { useAuthStore } from "../stores/useAuthStore";
 import {
   LineChart,
   Line,
@@ -22,19 +21,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import dayjs, { Dayjs } from "dayjs";
-
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
+import axios from "../utils/axiosInstance";
+import { Tag } from "antd";
 const { Title } = Typography;
 const { Option } = Select;
 
 type PickerMode = "date" | "month" | "year";
 
 export default function DashboardPage() {
-  const { tokens } = useAuthStore();
+  const navigate = useNavigate();
+  const { tokens, hasHydrated } = useAuthStore();
   const [stats, setStats] = useState<any>({});
   const [orders, setOrders] = useState([]);
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [filterType, setFilterType] = useState<PickerMode>("month");
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    if (!tokens?.accessToken) {
+      message.warning("Vui lòng đăng nhập để tiếp tục");
+      navigate("/login");
+    }
+  }, [tokens, hasHydrated]);
 
   useEffect(() => {
     if (tokens?.accessToken) {
@@ -47,32 +58,22 @@ export default function DashboardPage() {
     if (tokens?.accessToken) {
       fetchRevenue();
     }
-  }, [tokens, selectedDate, filterType]);
+  }, [selectedDate, filterType]);
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:8080/api/v1/statistics/summary",
-        {
-          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        }
-      );
+      const res = await axios.get("/statistics/summary");
       setStats(res.data.data);
-    } catch (err) {
+    } catch {
       message.error("Lỗi khi lấy dữ liệu tổng quan");
     }
   };
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:8080/api/v1/orders?limit=5",
-        {
-          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        }
-      );
+      const res = await axios.get("/orders?limit=5");
       setOrders(res.data.data.orders);
-    } catch (err) {
+    } catch {
       message.error("Lỗi khi lấy đơn hàng gần đây");
     }
   };
@@ -81,22 +82,16 @@ export default function DashboardPage() {
     const year = selectedDate.year();
     const month = selectedDate.month() + 1;
     const day = selectedDate.date();
-
     let query = `year=${year}`;
     if (filterType === "month") query += `&month=${month}`;
     if (filterType === "date") query += `&month=${month}&day=${day}`;
 
     try {
-      const res = await axios.get(
-        `http://localhost:8080/api/v1/statistics/revenue?${query}`,
-        {
-          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        }
-      );
+      const res = await axios.get(`/statistics/revenue?${query}`);
       setRevenueData(res.data.data || []);
-    } catch (err) {
-      message.error("Lỗi khi lấy dữ liệu doanh thu");
+    } catch {
       setRevenueData([]);
+      message.error("Lỗi khi lấy dữ liệu doanh thu");
     }
   };
 
@@ -104,14 +99,40 @@ export default function DashboardPage() {
     (sum, item) => sum + (item.total || 0),
     0
   );
-
+  const getVietnameseOrderStatus = (status: string) => {
+    switch (status) {
+      case "pending":
+        return { text: "Chờ xử lý", color: "gold" };
+      case "processing":
+        return { text: "Đang xử lý", color: "blue" };
+      case "shipped":
+        return { text: "Đã gửi", color: "purple" };
+      case "delivered":
+        return { text: "Đã giao", color: "green" };
+      case "completed":
+        return { text: "Hoàn thành", color: "success" };
+      case "cancelled":
+        return { text: "Đã hủy", color: "red" };
+      case "returned":
+        return { text: "Đã trả hàng", color: "magenta" };
+      default:
+        return { text: "Không rõ", color: "default" };
+    }
+  };
   const columns = [
     {
       title: "Mã đơn",
       dataIndex: "_id",
       render: (id: string) => <span>{id.slice(-6).toUpperCase()}</span>,
     },
-    { title: "Trạng thái", dataIndex: "status" },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      render: (status: string) => {
+        const { text, color } = getVietnameseOrderStatus(status);
+        return <Tag color={color}>{text}</Tag>;
+      },
+    },
     {
       title: "Tổng tiền",
       dataIndex: "totalAmount",

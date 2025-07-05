@@ -76,7 +76,7 @@ const requestOtp = async (userData: any) => {
   const mailOptions = {
     from: env.EMAIL_ACCOUNT,
     to: userData.email,
-    subject: "Xác minh tài khoản - Cửa Hàng ABC",
+    subject: "Xác minh tài khoản - LUXURY FASHION",
     html: `
       <p>Xin chào <strong>${userData.fullName || "bạn"}</strong>,</p>
       <p>Mã xác minh tài khoản của bạn là:</p>
@@ -178,6 +178,81 @@ const deleteUser = async (id: string) => {
   if (!user) throw createHttpError(404, "Không tìm thấy người dùng");
   return user;
 };
+const requestResetPassword = async (email: string) => {
+  const user = await userModel.findOne({ email });
+  if (!user) throw createHttpError(404, "Email không tồn tại trong hệ thống");
+
+  const otpCode = generateVerificationCode();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+
+  const transporter = nodemailer.createTransport({
+    host: env.EMAIL_HOST,
+    port: env.EMAIL_PORT,
+    secure: env.EMAIL_SSL,
+    service: "gmail",
+    auth: {
+      user: env.EMAIL_ACCOUNT,
+      pass: env.EMAIL_PASSWORD,
+    },
+  } as nodemailer.TransportOptions);
+
+  const mailOptions = {
+    from: env.EMAIL_ACCOUNT,
+    to: email,
+    subject: "Yêu cầu đặt lại mật khẩu - LUXURY FASHION",
+    html: `
+      <p>Xin chào,</p>
+      <p>Bạn đã yêu cầu đặt lại mật khẩu. Mã xác minh của bạn là:</p>
+      <h2>${otpCode}</h2>
+      <p>Mã này sẽ hết hạn sau 10 phút.</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    throw createHttpError(500, "Không thể gửi email. Vui lòng thử lại.");
+  }
+
+  await tempUserModel.findOneAndUpdate(
+    { email },
+    {
+      email,
+      verificationCode: otpCode,
+      verificationCodeExpires: otpExpires,
+    },
+    { upsert: true, new: true }
+  );
+
+  return { message: "Mã đặt lại mật khẩu đã được gửi qua email" };
+};
+const resetPassword = async (
+  email: string,
+  otp: string,
+  newPassword: string
+) => {
+  const temp = await tempUserModel.findOne({ email });
+  if (!temp)
+    throw createHttpError(404, "Không tìm thấy yêu cầu đặt lại mật khẩu");
+
+  if (temp.verificationCode !== otp) {
+    throw createHttpError(400, "Mã OTP không đúng");
+  }
+
+  if (new Date() > temp.verificationCodeExpires) {
+    throw createHttpError(400, "Mã OTP đã hết hạn");
+  }
+
+  const user = await userModel.findOne({ email });
+  if (!user) throw createHttpError(404, "Không tìm thấy người dùng");
+
+  user.password = newPassword;
+  await user.save();
+
+  await tempUserModel.deleteOne({ email });
+
+  return { message: "Mật khẩu đã được đặt lại thành công" };
+};
 
 export default {
   getAllUsers,
@@ -188,4 +263,6 @@ export default {
   update,
   deleteUser,
   changePassword,
+  requestResetPassword,
+  resetPassword,
 };

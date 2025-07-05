@@ -524,16 +524,12 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link
                   href="/product"
-                  className="group px-8  bg-white text-slate-800 hover:bg-gray-50 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                  className="group px-8 py-2 bg-white text-slate-800 hover:bg-gray-50 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
                 >
-                  <ShoppingBag className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  <ShoppingBag className="w-5 h-5  mr-2 group-hover:scale-110 transition-transform" />
                   Mua Sắm Ngay
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button className="group px-8 py-2 border-2 border-white/30 text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-300 backdrop-blur-sm">
-                  <Globe className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  Xem Catalog
-                </button>
               </div>
             </div>
           </div>

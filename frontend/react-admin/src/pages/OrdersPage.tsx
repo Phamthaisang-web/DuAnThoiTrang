@@ -6,6 +6,7 @@ import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -71,7 +72,7 @@ const OrderPage: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8080/api/v1/orders", {
+      const res = await axios.get(`${env.API_URL}/api/v1/orders`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setOrders(res.data.data.orders);
@@ -85,7 +86,7 @@ const OrderPage: React.FC = () => {
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       await axios.put(
-        `http://localhost:8080/api/v1/orders/${id}`,
+        `${env.API_URL}http/api/v1/orders/${id}`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },

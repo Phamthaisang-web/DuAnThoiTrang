@@ -4,7 +4,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY1NWQ1MWQ3OWQ3ZjE4NGQ2Y2MzMjEiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxNTI4MTEyLCJleHAiOjE3NTE2MTQ1MTJ9.cZYU-RSV6RMOtmFXUtStDkIWxw0x3STWocY9-ELC1qE
 
 {
-  "name": "d444444444",
+  "name": "",
   "description": "",
   "price": 24302196,
   "slug": "ao-polo-gucci-gg-knit-jacquard",

@@ -1,27 +1,28 @@
-import { create } from 'zustand'
-import { devtools, persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { devtools, persist, createJSONStorage } from "zustand/middleware";
 
 interface ITokens {
   accessToken: string;
   refreshToken: string;
 }
+
 interface IUser {
   _id: string;
   email: string;
-fullName: string;
+  fullName: string;
   phone: string;
-  
   active: boolean;
   roles: string;
 }
 
-type TAuthStore ={
-  tokens: null | ITokens;
-  user: null | IUser;
+type TAuthStore = {
+  tokens: ITokens | null;
+  user: IUser | null;
+  hasHydrated: boolean;
   setTokens: (tokens: ITokens) => void;
   clearTokens: () => void;
-  setUser: (user: IUser | null)=>void;
-}
+  setUser: (user: IUser | null) => void;
+};
 
 export const useAuthStore = create<TAuthStore>()(
   devtools(
@@ -29,17 +30,17 @@ export const useAuthStore = create<TAuthStore>()(
       (set) => ({
         tokens: null,
         user: null,
-        setTokens: (tokens: ITokens) => {
-          set({ tokens });
-        },
-        clearTokens: () => set({ tokens: null }),
-        setUser: (user: IUser |  null)=>{
-          set({ user });
-        }
+        hasHydrated: false, // 👈 trạng thái đã hydrate chưa
+        setTokens: (tokens: ITokens) => set({ tokens }),
+        clearTokens: () => set({ tokens: null, user: null }),
+        setUser: (user: IUser | null) => set({ user }),
       }),
       {
-        name: 'auth-storage', // unique name
-        storage: createJSONStorage(() => localStorage), // use local storage
+        name: "auth-storage",
+        storage: createJSONStorage(() => localStorage),
+        onRehydrateStorage: () => () => {
+          useAuthStore.setState({ hasHydrated: true }); // 👈 gắn cờ đã hydrate
+        },
       }
     )
   )
