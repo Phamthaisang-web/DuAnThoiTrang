@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import PromotionsList from "@/components/PromotionList";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Product {
   _id: string;
   name: string;
@@ -60,7 +60,7 @@ export default function Home() {
     const fetchProducts = async () => {
       try {
         const productsRes = await axios.get(
-          "http://localhost:8080/api/v1/products?limit=10"
+          `${apiUrl}/api/v1/products?limit=10`
         );
         setProducts(productsRes.data.data.products || []);
       } catch (error) {
@@ -71,7 +71,7 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  const backgrounds = ["http://localhost:8080/upload/images/nen1.jpg"];
+  const backgrounds = [`${apiUrl}/upload/images/nen1.jpg`];
 
   const [currentBg, setCurrentBg] = useState(0);
 
@@ -331,7 +331,7 @@ export default function Home() {
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-3xl opacity-20 blur-xl"></div>
               <img
-                src="http://localhost:8080/upload/images/nen0.jpg"
+                src={`${apiUrl}/upload/images/nen0.jpg`}
                 alt="Luxury Fashion"
                 className="relative w-full h-[500px] object-cover rounded-2xl shadow-2xl"
               />
