@@ -1,0 +1,32 @@
+PUT http://localhost:8080/api/v1/orders/685fe22e05ea29cd73f83d7b
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVmYzM0ZGMxZDQ4NDhkNWM2NTJmMmIiLCJlbWFpbCI6InBoYW10aGFpc2FuZzFAZ21haWwuY29tIiwiaWF0IjoxNzUxMTE1NDMyLCJleHAiOjE3NTEyMDE4MzJ9.QxXMwQqEAiybQd1IsiGlIC75qWeHpi6gUAJXahPRS1s
+
+{
+  "status" : "delivered"
+}
+###
+GET http://localhost:8080/api/v1/order-details?orderId=6860da038d1dd00d89caa4b0
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODYzN2Y5NGUyMjQ3Mzg4MThiNDY4MDciLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxMzc2ODMwLCJleHAiOjE3NTE0NjMyMzB9.z58UZoCVU7i1JP0BAa4nFaYlTjkjiJihvAzbflL0laA
+###
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY2YTk1MzQwZTExZmFjNTQ2OTg3YTIiLCJlbWFpbCI6InBzYW5nODM0OEBnbWFpbC5jb20iLCJpYXQiOjE3NTE2MDg2NzksImV4cCI6MTc1MTY5NTA3OX0.jNa6N_o1O9lKnXuJdgOiy_qpHUHQSU4mP5T99b0HO2k
+
+{
+  "user": "6866a95340e11fac546987a2",
+  "totalAmount": 249000,
+  "status": "pending",
+  "address": "68676e7c55de083dc0b01ca0",
+  "promoCode": "MAHE2002",
+  "items": [
+    {
+      "product": "686632cb4642eb99a7e2b617",
+      "quantity": 1,
+      "price": 99000,
+      "size": "M",
+      "color": "Đen"
+    }
+  ]
+}

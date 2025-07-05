@@ -1,0 +1,34 @@
+### create
+POST http://localhost:8080/api/v1/products
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY1NWQ1MWQ3OWQ3ZjE4NGQ2Y2MzMjEiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxNTI4MTEyLCJleHAiOjE3NTE2MTQ1MTJ9.cZYU-RSV6RMOtmFXUtStDkIWxw0x3STWocY9-ELC1qE
+
+{
+  "name": "",
+  "description": "",
+  "price": 24302196,
+  "slug": "ao-polo-gucci-gg-knit-jacquard",
+  "sizes": ["M", "L", "XL", "S"],
+  "colors": [],
+  "stockQuantity": 31,
+  "images": [
+    {
+      "url": "/upload/images/z6743972471619cb0267d201e6ac85a70fd7cb198ad4b7-1750920522263.jpg",
+      "altText": "z6743972471619_cb0267d201e6ac85a70fd7cb198ad4b7.jpg"
+    },
+    {
+      "url": "/upload/images/z674397323011679db427b9d9221f2522e743704d4f8ea-1750920522267.jpg",
+      "altText": "z6743973230116_79db427b9d9221f2522e743704d4f8ea.jpg"
+    }
+  ],
+  "category": ["684fe83dd0d0704a01215925"],
+  "brand": "685b9d73070af12465730254"
+}
+
+### GET
+GET http://localhost:8080/api/v1/products
+
+### DELETE
+DELETE http://localhost:8080/api/v1/products/684e79be112a0a0de4f69db6
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODQwMzcwYjgwNjVkYjJmNjVlOTgwMmQiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzQ5OTcyNzYzLCJleHAiOjE3NTAwNTkxNjN9.iinWngex6ay8k1Gh35Y-pSY5shk2t1Yh_4zYK7xy39k

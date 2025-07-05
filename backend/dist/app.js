@@ -1,0 +1,41 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const categories_route_1 = __importDefault(require("./routes/categories.route"));
+const users_route_1 = __importDefault(require("./routes/users.route"));
+const auth_route_1 = __importDefault(require("./routes/auth.route"));
+const brands_route_1 = __importDefault(require("./routes/brands.route"));
+const products_route_1 = __importDefault(require("./routes/products.route"));
+const upload_route_1 = __importDefault(require("./routes/upload.route"));
+const statistics_route_1 = __importDefault(require("./routes/statistics.route"));
+const orders_route_1 = __importDefault(require("./routes/orders.route"));
+const orderDetails_route_1 = __importDefault(require("./routes/orderDetails.route"));
+const promotion_route_1 = __importDefault(require("./routes/promotion.route"));
+const addresses_route_1 = __importDefault(require("./routes/addresses.route"));
+const ai_route_1 = __importDefault(require("./routes/ai.route"));
+const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.get("/", (req, res) => {
+    res.send("Hello, World!");
+});
+app.use("/api/v1/", categories_route_1.default);
+app.use("/api/v1/", users_route_1.default);
+app.use("/api/v1/", auth_route_1.default);
+app.use("/api/v1/", brands_route_1.default);
+app.use("/api/v1/", products_route_1.default);
+app.use("/api/v1/", upload_route_1.default);
+app.use("/api/v1/", orders_route_1.default);
+app.use("/api/v1/", orderDetails_route_1.default);
+app.use("/api/v1/", promotion_route_1.default);
+app.use("/api/v1/", addresses_route_1.default);
+app.use("/api/v1/", ai_route_1.default);
+app.use("/api/v1/statistics", statistics_route_1.default);
+app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
+exports.default = app;
+//# sourceMappingURL=app.js.map
