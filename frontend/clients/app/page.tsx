@@ -383,7 +383,7 @@ export default function Home() {
 
               <Link
                 href="/about"
-                className="px-3 py-4  w-[200px] bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold rounded-full transition-all duration-300 flex items-center group "
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-full text-white font-medium mb-8 "
               >
                 Khám Phá Ngay
                 <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

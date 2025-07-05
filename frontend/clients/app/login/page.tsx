@@ -151,7 +151,7 @@ export default function AuthPage() {
       localStorage.setItem("refreshToken", refreshToken);
       router.push("/product");
     } catch (err) {
-      handleError(err);
+      toast.error("Email hoặc mật khẩu không đúng.");
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +222,7 @@ export default function AuthPage() {
           toast.error("Mật khẩu phải có ít nhất 8 ký tự");
           return;
         }
-        await axios.post(`$${apiUrl}/api/v1/reset-password`, {
+        await axios.post(`${apiUrl}/api/v1/reset-password`, {
           email,
           otp,
           newPassword,
@@ -449,8 +449,7 @@ export default function AuthPage() {
                     </div>
 
                     <p className="text-xs text-gray-500 mt-1">
-                      Mật khẩu phải có ít nhất 8 ký tự, chứa chữ hoa, chữ thường
-                      và số.
+                      Mật khẩu phải có ít nhất 8 ký tự và số.
                     </p>
                   </div>
                 </>
@@ -658,8 +657,7 @@ export default function AuthPage() {
                         </button>
                       </div>
                       <p className="text-xs text-gray-500">
-                        Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ
-                        thường và số.
+                        Mật khẩu phải có ít nhất 8 ký tự
                       </p>
                     </div>
 

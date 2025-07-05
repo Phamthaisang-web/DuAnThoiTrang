@@ -91,10 +91,10 @@ const ProductAIChat = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed ${
-          isMobile ? "bottom-4 right-3 p-2" : "bottom-20 right-5 p-3"
+          isMobile ? "bottom-10 right-3 p-2" : "bottom-20 right-5 p-3"
         } z-50 bg-gradient-to-r from-amber-500 to-yellow-600 hover:brightness-110 text-white rounded-full shadow-md transition transform hover:scale-105`}
       >
-        <MessageCircle size={isMobile ? 20 : 30} strokeWidth={1.5} />
+        <MessageCircle size={isMobile ? 40 : 40} strokeWidth={1.5} />
       </button>
 
       {/* Ultra-Compact Chat Window */}
