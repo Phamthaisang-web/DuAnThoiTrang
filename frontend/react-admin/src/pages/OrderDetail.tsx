@@ -59,7 +59,7 @@ export default function OrderDetail() {
   const { id } = useParams();
   const [order, setOrder] = useState<OrderDetailData | null>(null);
   const [products, setProducts] = useState<ProductInOrder[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const { tokens } = useAuthStore();
   const navigate = useNavigate();
 
@@ -75,15 +75,12 @@ export default function OrderDetail() {
 
   const fetchOrder = async () => {
     try {
-      setLoading(true);
       const res = await axios.get(`${env.API_URL}/api/v1/orders/${id}`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
       setOrder(res.data.data);
     } catch (err) {
       message.error("Không thể tải thông tin đơn hàng");
-    } finally {
-      setLoading(false);
     }
   };
 

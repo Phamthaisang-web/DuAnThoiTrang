@@ -22,7 +22,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
-import type { UploadFile } from "antd/es/upload/interface";
+
 import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
@@ -60,9 +60,7 @@ const ProductPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<UploadFile[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+
   const [searchText, setSearchText] = useState("");
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<
     string | null
@@ -122,9 +120,8 @@ const ProductPage: React.FC = () => {
   };
 
   const handleEdit = (product: Product) => {
-    setSelectedProduct(product);
     const sizes = product.sizes || [];
-    setSelectedSizes(sizes);
+
     form.setFieldsValue({
       ...product,
       category: product.category?.map((cat) => cat._id) || [],
@@ -132,15 +129,6 @@ const ProductPage: React.FC = () => {
       sizes,
       colors: product.colors || [],
     });
-    setUploadedImages(
-      product.images.map((img, index) => ({
-        uid: `${index}`,
-        name: img.altText || `image-${index + 1}.jpg`,
-        status: "done",
-        url: `${env.API_URL}${img.url}`,
-        response: { url: img.url },
-      }))
-    );
   };
 
   const handleDelete = (id: string) => {
