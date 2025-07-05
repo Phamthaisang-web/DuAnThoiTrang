@@ -35,7 +35,7 @@ type Address = {
   ward: string;
   isDefault: boolean;
 };
-export const calculateDiscountedAmount = (
+const calculateDiscountedAmount = (
   originalAmount: number,
   type?: "percent" | "fixed",
   value?: number,
