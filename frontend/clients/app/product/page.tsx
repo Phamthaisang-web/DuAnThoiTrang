@@ -5,7 +5,6 @@ import axios from "axios";
 import CardProduct from "@/components/CardProduct";
 import { ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import PromotionsList from "@/components/PromotionList";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

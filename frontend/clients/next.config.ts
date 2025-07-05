@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ["thoitrangbackend.onrender.com"], // 👈 Thêm dòng này
+    domains: ["https://thoitrangbackend.onrender.com"], // 👈 Thêm dòng này
   },
   eslint: {
     ignoreDuringBuilds: true, // 👈 Thêm dòng này để bỏ qua lỗi ESLint khi build
