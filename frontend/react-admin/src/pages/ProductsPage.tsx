@@ -8,19 +8,16 @@ import {
   Modal,
   Form,
   Input,
-  InputNumber,
   Select,
   message,
   Typography,
   Spin,
-  Upload,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   AppstoreOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +26,6 @@ import type { UploadFile } from "antd/es/upload/interface";
 import { env } from "../constants/getEnvs";
 
 const { Title } = Typography;
-const { TextArea } = Input;
 
 interface Product {
   _id: string;
@@ -64,8 +60,6 @@ const ProductPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [uploadedImages, setUploadedImages] = useState<UploadFile[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -79,8 +73,6 @@ const ProductPage: React.FC = () => {
   const [selectedStockFilter, setSelectedStockFilter] = useState<string | null>(
     null
   );
-
-  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
 
   useEffect(() => {
     if (!tokens?.accessToken) {
@@ -129,14 +121,6 @@ const ProductPage: React.FC = () => {
     }
   };
 
-  const handleAdd = () => {
-    form.resetFields();
-    setSelectedProduct(null);
-    setUploadedImages([]);
-    setSelectedSizes([]);
-    setIsModalOpen(true);
-  };
-
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     const sizes = product.sizes || [];
@@ -157,7 +141,6 @@ const ProductPage: React.FC = () => {
         response: { url: img.url },
       }))
     );
-    setIsModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -198,60 +181,6 @@ const ProductPage: React.FC = () => {
 
     return matchesSearch && matchesCategory && matchesBrand && matchesStock;
   });
-
-  const handleSave = async () => {
-    try {
-      const values = await form.validateFields();
-
-      const images = uploadedImages
-        .filter(
-          (file) => file.status === "done" && (file.response?.url || file.url)
-        )
-        .map((file) => ({
-          url: file.response?.url || file.url,
-          altText: file.name,
-        }));
-
-      if (images.length === 0) {
-        message.error("Vui lòng tải lên ít nhất một ảnh");
-        return;
-      }
-
-      const payload = {
-        ...values,
-        images,
-        sizes: selectedSizes,
-        colors: values.colors || [],
-        category: values.category || [],
-      };
-
-      setSaving(true);
-
-      if (selectedProduct) {
-        await axios.put(
-          `${env.API_URL}/api/v1/products/${selectedProduct._id}`,
-          payload,
-          {
-            headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-          }
-        );
-        message.success("Cập nhật sản phẩm thành công");
-      } else {
-        await axios.post(`${env.API_URL}/api/v1/products`, payload, {
-          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-        });
-        message.success("Tạo sản phẩm mới thành công");
-      }
-
-      setIsModalOpen(false);
-      fetchProducts();
-    } catch (err: any) {
-      console.error("🛑 Lỗi từ server:", err?.response?.data || err.message);
-      message.error(err?.response?.data?.message || "Lỗi khi lưu sản phẩm");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const columns = [
     {
@@ -382,7 +311,7 @@ const ProductPage: React.FC = () => {
         <Title level={3}>
           <AppstoreOutlined /> Quản Lý Sản Phẩm
         </Title>
-        <Button icon={<PlusOutlined />} type="primary" onClick={handleAdd}>
+        <Button icon={<PlusOutlined />} type="primary">
           Thêm Mới
         </Button>
       </div>

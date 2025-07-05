@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input, message } from "antd";
+import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import { env } from "../constants/getEnvs";
 import { useAuthStore } from "../stores/useAuthStore";
