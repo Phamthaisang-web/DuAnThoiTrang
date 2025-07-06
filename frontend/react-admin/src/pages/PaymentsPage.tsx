@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
 import dayjs from "dayjs";
 import { env } from "../constants/getEnvs";
-
+import type { UploadFile } from "antd/es/upload/interface";
 const { Title } = Typography;
 
 interface Payment {

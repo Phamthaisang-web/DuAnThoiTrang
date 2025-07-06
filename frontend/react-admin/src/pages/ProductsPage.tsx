@@ -9,23 +9,30 @@ import {
   Form,
   Input,
   Select,
+  InputNumber,
+  Upload,
   message,
   Typography,
   Spin,
+  Tag,
+  Image,
+  Checkbox,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   AppstoreOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
-
+import type { UploadFile } from "antd/es/upload/interface";
 import { env } from "../constants/getEnvs";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 interface Product {
   _id: string;
@@ -60,75 +67,76 @@ const ProductPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<UploadFile[]>([]);
 
+  // State for filters
   const [searchText, setSearchText] = useState("");
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<
-    string | null
-  >(null);
-  const [selectedBrandFilter, setSelectedBrandFilter] = useState<string | null>(
-    null
-  );
-  const [selectedStockFilter, setSelectedStockFilter] = useState<string | null>(
-    null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!tokens?.accessToken) {
       message.warning("Vui lòng đăng nhập");
       navigate("/login");
     } else {
-      fetchProducts();
-      fetchCategories();
-      fetchBrands();
+      fetchData();
     }
   }, [tokens]);
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${env.API_URL}/api/v1/products`, {
-        headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-      });
-      setProducts(res.data.data.products || []);
-    } catch {
-      message.error("Lỗi khi lấy danh sách sản phẩm");
+      const [productsRes, categoriesRes, brandsRes] = await Promise.all([
+        axios.get(`${env.API_URL}/api/v1/products`, {
+          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+        }),
+        axios.get(`${env.API_URL}/api/v1/categories`, {
+          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+        }),
+        axios.get(`${env.API_URL}/api/v1/brands`, {
+          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+        }),
+      ]);
+
+      setProducts(productsRes.data.data.products || []);
+      setCategories(categoriesRes.data.data.categories || []);
+      setBrands(brandsRes.data.data.brand || []);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      message.error("Lỗi khi tải dữ liệu");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get(`${env.API_URL}/api/v1/categories`, {
-        headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-      });
-      setCategories(res.data.data.categories);
-    } catch {
-      message.error("Lỗi khi lấy danh mục");
-    }
-  };
-
-  const fetchBrands = async () => {
-    try {
-      const res = await axios.get(`${env.API_URL}/api/v1/brands`, {
-        headers: { Authorization: `Bearer ${tokens!.accessToken}` },
-      });
-      setBrands(res.data.data.brand);
-    } catch {
-      message.error("Lỗi khi lấy thương hiệu");
-    }
+  const handleAdd = () => {
+    form.resetFields();
+    setUploadedImages([]);
+    setIsModalOpen(true);
   };
 
   const handleEdit = (product: Product) => {
-    const sizes = product.sizes || [];
-
     form.setFieldsValue({
       ...product,
       category: product.category?.map((cat) => cat._id) || [],
       brand: product.brand?._id,
-      sizes,
+      sizes: product.sizes || [],
       colors: product.colors || [],
     });
+
+    setUploadedImages(
+      product.images?.map((img, index) => ({
+        uid: `-${index}`,
+        name: img.altText || `image-${index}`,
+        status: "done",
+        url: `${env.API_URL}${img.url}`,
+        response: { url: img.url },
+      })) || []
+    );
+    setIsModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -142,7 +150,7 @@ const ProductPage: React.FC = () => {
             headers: { Authorization: `Bearer ${tokens!.accessToken}` },
           });
           message.success("Xóa sản phẩm thành công");
-          fetchProducts();
+          fetchData();
         } catch {
           message.error("Lỗi khi xóa sản phẩm");
         }
@@ -150,26 +158,77 @@ const ProductPage: React.FC = () => {
     });
   };
 
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+
+      if (uploadedImages.length === 0) {
+        message.error("Vui lòng tải lên ít nhất một ảnh sản phẩm");
+        return;
+      }
+
+      const images = uploadedImages.map((img) => ({
+        url: img.response?.url || img.url?.replace(env.API_URL, ""),
+        altText: img.name,
+      }));
+
+      const payload = {
+        ...values,
+        images,
+        price: Number(values.price),
+        stockQuantity: Number(values.stockQuantity),
+      };
+
+      setSaving(true);
+
+      if (values._id) {
+        await axios.put(
+          `${env.API_URL}/api/v1/products/${values._id}`,
+          payload,
+          {
+            headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+          }
+        );
+        message.success("Cập nhật sản phẩm thành công");
+      } else {
+        await axios.post(`${env.API_URL}/api/v1/products`, payload, {
+          headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+        });
+        message.success("Thêm sản phẩm mới thành công");
+      }
+
+      setIsModalOpen(false);
+      fetchData();
+    } catch (error) {
+      console.error("Save error:", error);
+      message.error("Lỗi khi lưu sản phẩm");
+    } finally {
+      setSaving(false);
+    }
+  };
+  // Filter products based on search and filters
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
       .includes(searchText.toLowerCase());
 
+    // Khi selectedCategory là null (chọn "Tất cả"), sẽ không lọc theo category
     const matchesCategory =
-      !selectedCategoryFilter ||
-      product.category?.some((cat) => cat._id === selectedCategoryFilter);
+      selectedCategory === null ||
+      product.category?.some((cat) => cat._id === selectedCategory);
 
+    // Khi selectedBrand là null (chọn "Tất cả"), sẽ không lọc theo brand
     const matchesBrand =
-      !selectedBrandFilter || product.brand?._id === selectedBrandFilter;
+      selectedBrand === null || product.brand?._id === selectedBrand;
 
+    // Khi stockStatus là null (chọn "Tất cả"), sẽ không lọc theo stock
     const matchesStock =
-      !selectedStockFilter ||
-      (selectedStockFilter === "available" && product.stockQuantity > 0) ||
-      (selectedStockFilter === "out-of-stock" && product.stockQuantity === 0);
+      stockStatus === null ||
+      (stockStatus === "in-stock" && product.stockQuantity > 0) ||
+      (stockStatus === "out-of-stock" && product.stockQuantity === 0);
 
     return matchesSearch && matchesCategory && matchesBrand && matchesStock;
   });
-
   const columns = [
     {
       title: "Ảnh",
@@ -297,30 +356,31 @@ const ProductPage: React.FC = () => {
     <div className="p-4 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <Title level={3}>
-          <AppstoreOutlined /> Quản Lý Sản Phẩm
+          <AppstoreOutlined /> Quản lý sản phẩm
         </Title>
-        <Button icon={<PlusOutlined />} type="primary">
-          Thêm Mới
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+          Thêm mới
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+      {/* Filter section */}
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
         <Input.Search
-          placeholder="Tìm theo tên sản phẩm"
+          placeholder="Tìm kiếm sản phẩm"
           allowClear
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 280 }}
+          style={{ width: 250 }}
         />
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <Select
-            placeholder="Tất cả danh mục"
+            placeholder="Danh mục"
             allowClear
             style={{ width: 180 }}
-            value={selectedCategoryFilter || undefined}
-            onChange={(value) => setSelectedCategoryFilter(value || null)}
+            value={selectedCategory}
+            onChange={(value) => setSelectedCategory(value)}
             options={[
-              { label: "Tất cả", value: null },
+              { label: "Tất cả danh mục", value: null }, // Thêm option "Tất cả"
               ...categories.map((cat) => ({
                 label: cat.name,
                 value: cat._id,
@@ -329,13 +389,13 @@ const ProductPage: React.FC = () => {
           />
 
           <Select
-            placeholder="Tất cả thương hiệu"
+            placeholder="Thương hiệu"
             allowClear
             style={{ width: 180 }}
-            value={selectedBrandFilter || undefined}
-            onChange={(value) => setSelectedBrandFilter(value || null)}
+            value={selectedBrand}
+            onChange={(value) => setSelectedBrand(value)}
             options={[
-              { label: "Tất cả", value: null },
+              { label: "Tất cả thương hiệu", value: null }, // Thêm option "Tất cả"
               ...brands.map((brand) => ({
                 label: brand.name,
                 value: brand._id,
@@ -344,26 +404,175 @@ const ProductPage: React.FC = () => {
           />
 
           <Select
-            placeholder="Lọc theo tồn kho"
+            placeholder="Tình trạng kho"
             allowClear
-            style={{ width: 160 }}
-            value={selectedStockFilter || undefined}
-            onChange={(value) => setSelectedStockFilter(value || null)}
+            style={{ width: 150 }}
+            value={stockStatus}
+            onChange={(value) => setStockStatus(value)}
             options={[
-              { label: "Còn hàng", value: "available" },
+              { label: "Tất cả", value: null }, // Thêm option "Tất cả"
+              { label: "Còn hàng", value: "in-stock" },
               { label: "Hết hàng", value: "out-of-stock" },
             ]}
           />
         </div>
       </div>
 
+      {/* Product table */}
       <Table
         columns={columns}
         dataSource={filteredProducts}
         rowKey="_id"
         loading={loading}
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 1500 }}
       />
+
+      {/* Product form modal */}
+      <Modal
+        title={
+          form.getFieldValue("_id") ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"
+        }
+        open={isModalOpen}
+        onOk={handleSave}
+        onCancel={() => setIsModalOpen(false)}
+        confirmLoading={saving}
+        width={800}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="_id" hidden>
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="name"
+            label="Tên sản phẩm"
+            rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="description" label="Mô tả">
+            <TextArea rows={4} />
+          </Form.Item>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              name="price"
+              label="Giá (VND)"
+              rules={[{ required: true, message: "Vui lòng nhập giá" }]}
+            >
+              <InputNumber
+                style={{ width: "100%" }}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                min={0}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="stockQuantity"
+              label="Số lượng tồn kho"
+              rules={[{ required: true, message: "Vui lòng nhập số lượng" }]}
+            >
+              <InputNumber style={{ width: "100%" }} min={0} />
+            </Form.Item>
+          </div>
+
+          <Form.Item name="sizes" label="Kích cỡ">
+            <Checkbox.Group
+              options={["XS", "S", "M", "L", "XL"]}
+              className="flex gap-4 flex-wrap"
+            />
+          </Form.Item>
+
+          <Form.Item name="colors" label="Màu sắc">
+            <Select
+              mode="tags"
+              tokenSeparators={[","]}
+              placeholder="Nhập màu"
+            />
+          </Form.Item>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item
+              name="category"
+              label="Danh mục"
+              rules={[{ required: true, message: "Vui lòng chọn danh mục" }]}
+            >
+              <Select
+                mode="multiple"
+                options={categories.map((cat) => ({
+                  label: cat.name,
+                  value: cat._id,
+                }))}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="brand"
+              label="Thương hiệu"
+              rules={[{ required: true, message: "Vui lòng chọn thương hiệu" }]}
+            >
+              <Select
+                options={brands.map((brand) => ({
+                  label: brand.name,
+                  value: brand._id,
+                }))}
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            label="Ảnh sản phẩm"
+            required
+            rules={[
+              { required: true, message: "Vui lòng tải lên ít nhất một ảnh" },
+            ]}
+          >
+            <Upload
+              name="file"
+              listType="picture-card"
+              action={`${env.API_URL}/api/v1/upload`}
+              headers={{ Authorization: `Bearer ${tokens?.accessToken || ""}` }}
+              fileList={uploadedImages}
+              onChange={({ file, fileList }) => {
+                setUploadedImages(fileList);
+                if (file.status === "done") {
+                  message.success("Tải ảnh thành công");
+                } else if (file.status === "error") {
+                  message.error("Tải ảnh thất bại");
+                }
+              }}
+              onRemove={(file) => {
+                setUploadedImages((prev) =>
+                  prev.filter((f) => f.uid !== file.uid)
+                );
+              }}
+              beforeUpload={(file) => {
+                const isImage = file.type.startsWith("image/");
+                if (!isImage) {
+                  message.error("Chỉ được tải lên file ảnh!");
+                  return Upload.LIST_IGNORE;
+                }
+                return isImage;
+              }}
+              multiple
+              maxCount={5}
+              accept="image/*"
+            >
+              {uploadedImages.length < 5 && (
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Tải ảnh</div>
+                </div>
+              )}
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
