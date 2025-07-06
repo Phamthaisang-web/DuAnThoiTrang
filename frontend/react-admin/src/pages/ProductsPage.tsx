@@ -253,6 +253,17 @@ const ProductPage: React.FC = () => {
       dataIndex: "name",
       key: "name",
       sorter: (a: Product, b: Product) => a.name.localeCompare(b.name),
+      render: (text: string) => (
+        <div
+          style={{
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            maxWidth: 200,
+          }}
+        >
+          {text}
+        </div>
+      ),
     },
     {
       title: "Giá",
@@ -266,7 +277,19 @@ const ProductPage: React.FC = () => {
       dataIndex: "sizes",
       key: "sizes",
       render: (sizes: string[]) =>
-        sizes && sizes.length > 0 ? sizes.join(", ") : "—",
+        sizes && sizes.length > 0 ? (
+          <div
+            style={{
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+              maxWidth: 150,
+            }}
+          >
+            {sizes.join(", ")}
+          </div>
+        ) : (
+          "—"
+        ),
     },
     {
       title: "Màu sắc",
@@ -274,7 +297,7 @@ const ProductPage: React.FC = () => {
       key: "colors",
       render: (colors: string[]) =>
         colors && colors.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 max-w-[200px] break-words">
             {colors.map((color, idx) => (
               <span
                 key={idx}
@@ -300,7 +323,7 @@ const ProductPage: React.FC = () => {
       key: "category",
       render: (categories: Category[] = []) =>
         categories.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 max-w-[150px] break-words">
             {categories.map((cat) => (
               <span
                 key={cat._id}
@@ -318,7 +341,17 @@ const ProductPage: React.FC = () => {
       title: "Thương Hiệu",
       dataIndex: ["brand", "name"],
       key: "brand",
-      render: (_: any, record: Product) => record?.brand?.name || "—",
+      render: (_: any, record: Product) => (
+        <div
+          style={{
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            maxWidth: 150,
+          }}
+        >
+          {record?.brand?.name || "—"}
+        </div>
+      ),
     },
     {
       title: "Ngày tạo",
