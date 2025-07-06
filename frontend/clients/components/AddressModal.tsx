@@ -1,11 +1,12 @@
 "use client";
 
-import type React from "react";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
 import { X, MapPin, User, Phone, Home, Star, Save } from "lucide-react";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 type Province = { code: number; name: string };
 type District = { code: number; name: string };
 type Ward = { code: number; name: string };
@@ -40,6 +41,7 @@ export default function AddressModal({
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
+
   const [formData, setFormData] = useState({
     receiverName: "",
     phone: "",
@@ -49,6 +51,7 @@ export default function AddressModal({
     ward: "",
     isDefault: false,
   });
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -56,72 +59,42 @@ export default function AddressModal({
 
   useEffect(() => {
     if (isOpen) {
-      fetch("https://provinces.open-api.vn/api/p/")
+      fetch("https://open.oapi.vn/location/provinces?page=0&size=100")
         .then((res) => res.json())
-        .then((data) => setProvinces(data));
+        .then((data) => setProvinces(data.data || []));
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (editingAddress && isOpen) {
+      const province = provinces.find((p) => p.name === editingAddress.city);
+      const district = districts.find(
+        (d) => d.name === editingAddress.district
+      );
+      const ward = wards.find((w) => w.name === editingAddress.ward);
+
       setFormData({
         receiverName: editingAddress.receiverName,
         phone: editingAddress.phone,
         addressLine: editingAddress.addressLine,
-        city: editingAddress.city,
-        district: editingAddress.district,
-        ward: editingAddress.ward,
+        city: province?.code?.toString() || "",
+        district: district?.code?.toString() || "",
+        ward: ward?.code?.toString() || "",
         isDefault: editingAddress.isDefault,
       });
-
-      const loadLocationData = async () => {
-        try {
-          const province = provinces.find(
-            (p) => p.name === editingAddress.city
-          );
-          if (province) {
-            const res = await fetch(
-              `https://provinces.open-api.vn/api/p/${province.code}?depth=2`
-            );
-            const data = await res.json();
-            setDistricts(data.districts || []);
-            const district = data.districts?.find(
-              (d: District) => d.name === editingAddress.district
-            );
-            if (district) {
-              const districtRes = await fetch(
-                `https://provinces.open-api.vn/api/d/${district.code}?depth=2`
-              );
-              const districtData = await districtRes.json();
-              setWards(districtData.wards || []);
-            }
-          }
-        } catch (error) {
-          console.error("Error loading location data:", error);
-        }
-      };
-
-      if (provinces.length > 0) loadLocationData();
     }
-  }, [editingAddress, isOpen, provinces]);
+  }, [editingAddress, isOpen, provinces, districts, wards]);
 
   const handleProvinceChange = async (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const code = e.target.value;
-    const province = provinces.find((p) => p.code.toString() === code);
-    setFormData({
-      ...formData,
-      city: province?.name || "",
-      district: "",
-      ward: "",
-    });
-
+    setFormData((prev) => ({ ...prev, city: code, district: "", ward: "" }));
     const res = await fetch(
-      `https://provinces.open-api.vn/api/p/${code}?depth=2`
+      `https://open.oapi.vn/location/districts?page=0&size=100&provinceCode=${code}`
     );
     const data = await res.json();
-    setDistricts(data.districts || []);
+    setDistricts(data.data || []);
     setWards([]);
   };
 
@@ -129,24 +102,25 @@ export default function AddressModal({
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const code = e.target.value;
-    const district = districts.find((d) => d.code.toString() === code);
-    setFormData({ ...formData, district: district?.name || "", ward: "" });
-
+    setFormData((prev) => ({ ...prev, district: code, ward: "" }));
     const res = await fetch(
-      `https://provinces.open-api.vn/api/d/${code}?depth=2`
+      `https://open.oapi.vn/location/wards?page=0&size=100&districtCode=${code}`
     );
     const data = await res.json();
-    setWards(data.wards || []);
+    setWards(data.data || []);
   };
 
   const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const ward = wards.find((w) => w.code.toString() === e.target.value);
-    setFormData({ ...formData, ward: ward?.name || "" });
+    const code = e.target.value;
+    setFormData((prev) => ({ ...prev, ward: code }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,6 +134,21 @@ export default function AddressModal({
       return;
     }
 
+    const selectedProvince = provinces.find(
+      (p) => String(p.code) === formData.city
+    );
+    const selectedDistrict = districts.find(
+      (d) => String(d.code) === formData.district
+    );
+    const selectedWard = wards.find((w) => String(w.code) === formData.ward);
+
+    const payload = {
+      ...formData,
+      city: selectedProvince?.name || "",
+      district: selectedDistrict?.name || "",
+      ward: selectedWard?.name || "",
+    };
+
     try {
       const url = isEditing
         ? `${apiUrl}/api/v1/addresses/${editingAddress!._id}`
@@ -172,7 +161,7 @@ export default function AddressModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -252,31 +241,27 @@ export default function AddressModal({
             onChange={handleChange}
           />
 
-          {/* Dropdowns */}
           <SelectField
             label="Tỉnh/Thành phố"
-            value={provinces.find((p) => p.name === formData.city)?.code || ""}
+            value={formData.city}
             onChange={handleProvinceChange}
             options={provinces}
           />
           <SelectField
             label="Quận/Huyện"
-            value={
-              districts.find((d) => d.name === formData.district)?.code || ""
-            }
+            value={formData.district}
             onChange={handleDistrictChange}
             options={districts}
             disabled={!districts.length}
           />
           <SelectField
             label="Phường/Xã"
-            value={wards.find((w) => w.name === formData.ward)?.code || ""}
+            value={formData.ward}
             onChange={handleWardChange}
             options={wards}
             disabled={!wards.length}
           />
 
-          {/* Default checkbox */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -363,8 +348,8 @@ function SelectField({ label, value, onChange, options, disabled }: any) {
         className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm bg-white disabled:bg-gray-100"
       >
         <option value="">Chọn {label}</option>
-        {options.map((opt: any) => (
-          <option key={opt.code} value={opt.code}>
+        {options.map((opt: any, index: number) => (
+          <option key={opt.code || index} value={opt.code}>
             {opt.name}
           </option>
         ))}
