@@ -86,7 +86,7 @@ const OrderPage: React.FC = () => {
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       await axios.put(
-        `${env.API_URL}http/api/v1/orders/${id}`,
+        `${env.API_URL}/api/v1/orders/${id}`,
         { status: newStatus },
         {
           headers: { Authorization: `Bearer ${tokens!.accessToken}` },
