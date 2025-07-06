@@ -428,6 +428,7 @@ export default function AuthPage() {
                         id="password"
                         name="password"
                         placeholder="Nhập mật khẩu"
+                        pattern=".{8,}"
                         value={form.password}
                         onChange={handleChange}
                         required
