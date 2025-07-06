@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Product {
   _id: string;
   name: string;
@@ -23,7 +23,7 @@ export default function CardProduct({ product }: { product: Product }) {
         <div className="w-full mb-4 overflow-hidden rounded-md flex justify-center items-center bg-white aspect-square">
           {product.images[0]?.url && (
             <img
-              src={`http://localhost:8080${product.images[0].url}`}
+              src={`${apiUrl}${product.images[0].url}`}
               alt={product.images[0]?.altText || product.name}
               className="object-cover  h-full"
             />

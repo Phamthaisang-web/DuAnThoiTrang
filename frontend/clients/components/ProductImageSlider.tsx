@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Image {
   url: string;
   altText?: string;
@@ -87,7 +87,7 @@ const ProductImageSlider: React.FC<ProductImageSliderProps> = ({
               className="min-w-full flex justify-center items-center bg-white"
             >
               <img
-                src={`http://localhost:8080${image.url}`}
+                src={`${apiUrl}${image.url}`}
                 alt={image.altText || `${productName} ${i}`}
                 className="h-full object-cover"
               />
@@ -130,7 +130,7 @@ const ProductImageSlider: React.FC<ProductImageSliderProps> = ({
               }`}
             >
               <img
-                src={`http://localhost:8080${img.url}`}
+                src={`${apiUrl}${img.url}`}
                 alt={img.altText || `${productName} ${i + 1}`}
                 className="w-full h-full object-cover"
               />

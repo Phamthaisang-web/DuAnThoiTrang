@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
 import { X, MapPin, User, Phone, Home, Star, Save } from "lucide-react";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 type Province = { code: number; name: string };
 type District = { code: number; name: string };
 type Ward = { code: number; name: string };
@@ -162,8 +162,8 @@ export default function AddressModal({
 
     try {
       const url = isEditing
-        ? `http://localhost:8080/api/v1/addresses/${editingAddress!._id}`
-        : "http://localhost:8080/api/v1/addresses";
+        ? `${apiUrl}/api/v1/addresses/${editingAddress!._id}`
+        : `${apiUrl}/api/v1/addresses`;
       const method = isEditing ? "PUT" : "POST";
 
       const res = await fetch(url, {

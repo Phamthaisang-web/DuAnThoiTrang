@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { MessageCircle, X } from "lucide-react";
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 interface Message {
   sender: "user" | "bot";
   text: string;
@@ -37,7 +37,7 @@ const ProductAIChat = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8080/api/v1/ask", {
+      const res = await axios.post(`${apiUrl}/api/v1/ask`, {
         question,
       });
 
