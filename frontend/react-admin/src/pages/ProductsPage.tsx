@@ -14,8 +14,6 @@ import {
   message,
   Typography,
   Spin,
-  Tag,
-  Image,
   Checkbox,
 } from "antd";
 import {
@@ -31,7 +29,7 @@ import { useAuthStore } from "../stores/useAuthStore";
 import type { UploadFile } from "antd/es/upload/interface";
 import { env } from "../constants/getEnvs";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { TextArea } = Input;
 
 interface Product {
