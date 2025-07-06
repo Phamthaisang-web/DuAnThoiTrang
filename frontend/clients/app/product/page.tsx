@@ -57,7 +57,6 @@ const getAllChildCategoryIds = (
 };
 
 export default function Page() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -206,7 +205,6 @@ export default function Page() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentPage(1);
-      fetchProducts(1);
     }, 300);
     return () => clearTimeout(timer);
   }, [
