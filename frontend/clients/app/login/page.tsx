@@ -640,8 +640,8 @@ export default function AuthPage() {
                           value={forgotPasswordData.newPassword}
                           onChange={handleForgotPasswordChange}
                           required
-                          pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
-                          title="Ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số"
+                          pattern=".{8,}"
+                          title="Ít nhất 8 ký tự"
                           className="w-full pl-8 sm:pl-10 pr-10 sm:pr-12 py-2 sm:py-3 text-sm border border-gray-200 rounded-lg focus:border-slate-500 focus:ring-2 focus:ring-slate-500 focus:ring-opacity-20 outline-none transition-all"
                         />
                         <button
