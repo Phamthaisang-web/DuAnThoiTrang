@@ -104,15 +104,6 @@ export default function Home() {
     },
   ];
 
-  const brands = [
-    { name: "GUCCI", logo: "G" },
-    { name: "CHANEL", logo: "C" },
-    { name: "LOUIS VUITTON", logo: "LV" },
-    { name: "HERMÈS", logo: "H" },
-    { name: "PRADA", logo: "P" },
-    { name: "DIOR", logo: "D" },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 mt-2">
       {/* Hero Section */}
@@ -184,7 +175,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* Features Section */}
       <div className="py-20 px-4 md:px-8 lg:px-20">
         <div className="max-w-7xl mx-auto">
@@ -210,38 +200,6 @@ export default function Home() {
                 <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Brand Showcase */}
-      <div className="py-16 bg-gradient-to-r from-gray-900 via-black to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Thương Hiệu Đối Tác
-            </h2>
-            <p className="text-gray-400 text-lg">
-              Hợp tác cùng những tên tuổi lớn nhất trong ngành thời trang
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-            {brands.map((brand, index) => (
-              <div
-                key={index}
-                className="group flex flex-col items-center justify-center p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-black font-bold text-lg">
-                    {brand.logo}
-                  </span>
-                </div>
-                <span className="text-white font-medium text-sm">
-                  {brand.name}
-                </span>
               </div>
             ))}
           </div>
@@ -323,7 +281,6 @@ export default function Home() {
           <PromotionsList />
         </div>
       </div>
-
       {/* About Section */}
       <div className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-20">

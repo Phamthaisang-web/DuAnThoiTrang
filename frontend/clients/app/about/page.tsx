@@ -188,11 +188,6 @@ export default function AboutPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button className="group px-8 py-4 bg-gradient-to-r from-slate-800 via-gray-800 to-zinc-900 hover:from-slate-900 hover:via-gray-900 hover:to-black text-white font-semibold rounded-xl transition-all duration-500 flex items-center justify-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative">Khám Phá Thương Hiệu</span>
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
             <Link
               href="/contact"
               className="group px-8 py-4 border-2 border-slate-300 hover:border-slate-400 text-slate-700 hover:bg-slate-50 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
