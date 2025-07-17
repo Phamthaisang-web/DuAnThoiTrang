@@ -16,6 +16,7 @@ import {
   Clock,
   ArrowLeft,
   Tag,
+  Trash,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
@@ -24,6 +25,7 @@ import AddressModal from "../../components/AddressModal";
 import Image from "next/image";
 import Link from "next/link";
 import PromotionsList from "@/components/PromotionList";
+import ConfirmDialog from "@/components/ConfirmDialog";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 type Address = {
   _id: string;
@@ -67,6 +69,7 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "BANK_TRANSFER">(
     "COD"
   );
@@ -79,7 +82,8 @@ export default function CheckoutPage() {
   const [discountType, setDiscountType] = useState<"percent" | "fixed">();
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [maxDiscount, setMaxDiscount] = useState<number | undefined>();
-
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
   const accessToken = tokens?.accessToken;
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -168,6 +172,31 @@ export default function CheckoutPage() {
     setDiscountValue(0);
     setMaxDiscount(undefined);
     setDiscount(0);
+  };
+  const onClickDelete = (id: string) => {
+    setAddressToDelete(id);
+    setShowConfirm(true);
+  };
+  const handleDeleteAddress = async (id: string) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/addresses/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Xóa địa chỉ thất bại");
+
+      toast.success("Xóa địa chỉ thành công");
+      await fetchAddresses();
+
+      if (selectedAddressId === id) {
+        setSelectedAddressId(addresses[0]?._id || null);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Lỗi khi xóa địa chỉ");
+    }
   };
 
   const handleCheckout = async () => {
@@ -379,6 +408,12 @@ export default function CheckoutPage() {
                           className="p-1.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
                         >
                           <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => onClickDelete(address._id)}
+                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors ml-2"
+                        >
+                          <Trash className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -670,6 +705,21 @@ export default function CheckoutPage() {
         onClose={handleCloseModal}
         onAddressAdded={handleAddressAdded}
         editingAddress={editingAddress}
+      />
+      <ConfirmDialog
+        open={showConfirm}
+        message="Bạn có chắc muốn xóa địa chỉ này không?"
+        onCancel={() => {
+          setShowConfirm(false);
+          setAddressToDelete(null);
+        }}
+        onConfirm={() => {
+          if (addressToDelete) {
+            handleDeleteAddress(addressToDelete);
+            setShowConfirm(false);
+            setAddressToDelete(null);
+          }
+        }}
       />
     </>
   );

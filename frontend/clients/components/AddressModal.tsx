@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
 import { X, MapPin, User, Phone, Home, Star, Save } from "lucide-react";
@@ -57,33 +57,58 @@ export default function AddressModal({
 
   const isEditing = !!editingAddress;
 
+  // Fetch provinces on open
   useEffect(() => {
     if (isOpen) {
-      fetch("https://open.oapi.vn/location/provinces?page=0&size=100")
+      fetch("https://provinces.open-api.vn/api/p/")
         .then((res) => res.json())
-        .then((data) => setProvinces(data.data || []));
+        .then((data) => setProvinces(data))
+        .catch((err) => console.error("Failed to fetch provinces:", err));
     }
   }, [isOpen]);
 
+  // Handle editing: load form with existing address
   useEffect(() => {
-    if (editingAddress && isOpen) {
-      const province = provinces.find((p) => p.name === editingAddress.city);
-      const district = districts.find(
-        (d) => d.name === editingAddress.district
-      );
-      const ward = wards.find((w) => w.name === editingAddress.ward);
+    const initForm = async () => {
+      if (editingAddress && provinces.length > 0) {
+        const province = provinces.find((p) => p.name === editingAddress.city);
+        if (province) {
+          const districtRes = await fetch(
+            `https://provinces.open-api.vn/api/p/${province.code}?depth=2`
+          );
+          const districtData = await districtRes.json();
+          setDistricts(districtData.districts || []);
 
-      setFormData({
-        receiverName: editingAddress.receiverName,
-        phone: editingAddress.phone,
-        addressLine: editingAddress.addressLine,
-        city: province?.code?.toString() || "",
-        district: district?.code?.toString() || "",
-        ward: ward?.code?.toString() || "",
-        isDefault: editingAddress.isDefault,
-      });
-    }
-  }, [editingAddress, isOpen, provinces, districts, wards]);
+          const district = districtData.districts.find(
+            (d: District) => d.name === editingAddress.district
+          );
+          if (district) {
+            const wardRes = await fetch(
+              `https://provinces.open-api.vn/api/d/${district.code}?depth=2`
+            );
+            const wardData = await wardRes.json();
+            setWards(wardData.wards || []);
+
+            const ward = wardData.wards.find(
+              (w: Ward) => w.name === editingAddress.ward
+            );
+
+            setFormData({
+              receiverName: editingAddress.receiverName,
+              phone: editingAddress.phone,
+              addressLine: editingAddress.addressLine,
+              city: province.code.toString(),
+              district: district.code.toString(),
+              ward: ward?.code.toString() || "",
+              isDefault: editingAddress.isDefault,
+            });
+          }
+        }
+      }
+    };
+
+    initForm();
+  }, [editingAddress, provinces]);
 
   const handleProvinceChange = async (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -91,10 +116,10 @@ export default function AddressModal({
     const code = e.target.value;
     setFormData((prev) => ({ ...prev, city: code, district: "", ward: "" }));
     const res = await fetch(
-      `https://open.oapi.vn/location/districts?page=0&size=100&provinceCode=${code}`
+      `https://provinces.open-api.vn/api/p/${code}?depth=2`
     );
     const data = await res.json();
-    setDistricts(data.data || []);
+    setDistricts(data.districts || []);
     setWards([]);
   };
 
@@ -104,10 +129,10 @@ export default function AddressModal({
     const code = e.target.value;
     setFormData((prev) => ({ ...prev, district: code, ward: "" }));
     const res = await fetch(
-      `https://open.oapi.vn/location/wards?page=0&size=100&districtCode=${code}`
+      `https://provinces.open-api.vn/api/d/${code}?depth=2`
     );
     const data = await res.json();
-    setWards(data.data || []);
+    setWards(data.wards || []);
   };
 
   const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -348,8 +373,8 @@ function SelectField({ label, value, onChange, options, disabled }: any) {
         className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm bg-white disabled:bg-gray-100"
       >
         <option value="">Chọn {label}</option>
-        {options.map((opt: any, index: number) => (
-          <option key={opt.code || index} value={opt.code}>
+        {options.map((opt: any) => (
+          <option key={opt.code} value={opt.code}>
             {opt.name}
           </option>
         ))}

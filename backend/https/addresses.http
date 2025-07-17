@@ -1,3 +1,18 @@
 GET http://localhost:8080/api/v1/addresses
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODVmODEzZjY2Yzk1MThiMTJhYTQzZDAiLCJlbWFpbCI6InBoYW10aGFpc2FuZzE3MTBAZ21haWwuY29tIiwiaWF0IjoxNzUxMDk1MzExLCJleHAiOjE3NTExODE3MTF9.hEkmo7HhiScs5Df-uZJmfP_QIlmrn7tzRsVTZcG7GUc
+
+###
+POST http://localhost:8080/api/v1/addresses
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODY5MDZhNWQ1Mjg3OTA3MzE2MjQyZDUiLCJlbWFpbCI6InBzYW5nODM0OEBnbWFpbC5jb20iLCJpYXQiOjE3NTI3MzI5MDcsImV4cCI6MTc1MjgxOTMwN30.MezK0iW16iNlnZHvlEdpMsdKsKhb44vA8vgeK7SMk_0
+
+{
+    "receiverName": "Nguyễn Văn A",
+  "phone": "0912345678",
+  "addressLine": "123 Đường Lê Lợi",
+  "city": "Hồ Chí Minh",
+  "district": "Quận 1",
+  "ward": "Phường Bến Nghé",
+  "isDefault": true
+}
