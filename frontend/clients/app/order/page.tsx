@@ -227,6 +227,7 @@ export default function CheckoutPage() {
       : originalTotal;
 
     try {
+      console.log("token", accessToken); // debug
       const res = await fetch(`${apiUrl}/api/v1/orders`, {
         method: "POST",
         headers: {
@@ -297,19 +298,19 @@ export default function CheckoutPage() {
   if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 flex items-center justify-center px-4">
-        <div className="text-center bg-white/90 backdrop-blur-sm p-12 rounded-2xl shadow-2xl max-w-lg w-full border border-gray-100">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-slate-100 to-gray-200 rounded-full flex items-center justify-center">
-            <ShoppingBag className="w-10 h-10 text-gray-400" />
+        <div className="text-center bg-white/90 backdrop-blur-sm p-6 sm:p-12 rounded-2xl shadow-2xl max-w-lg w-full border border-gray-100">
+          <div className="w-16 h-16 mx-auto mb-4 sm:mb-6 bg-gradient-to-br from-slate-100 to-gray-200 rounded-full flex items-center justify-center">
+            <ShoppingBag className="w-8 h-8 text-gray-400" />
           </div>
-          <h2 className="text-2xl font-bold mb-3 text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-gray-900">
             Không có sản phẩm
           </h2>
-          <p className="text-gray-600 mb-8 leading-relaxed">
+          <p className="text-gray-600 mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base">
             Giỏ hàng trống, hãy thêm sản phẩm để đặt hàng.
           </p>
           <button
             onClick={() => router.push("/")}
-            className="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-6 py-4 rounded-lg font-semibold transition-all duration-200"
+            className="w-full bg-gradient-to-r from-slate-800 to-gray-900 hover:from-slate-900 hover:to-black text-white px-4 py-3 sm:px-6 sm:py-4 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base"
           >
             Quay lại mua sắm
           </button>
@@ -320,19 +321,19 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 py-4 px-2">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 py-4 px-2 sm:px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-gray-700 rounded-lg flex items-center justify-center mr-3">
-                <CreditCard className="w-5 h-5 text-white" />
+          <div className="mb-4 sm:mb-6 px-2">
+            <div className="flex items-center mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-600 to-gray-700 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">
                   Xác nhận đặt hàng
                 </h1>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Kiểm tra thông tin và hoàn tất đơn hàng
                 </p>
               </div>
@@ -340,138 +341,142 @@ export default function CheckoutPage() {
             <div>
               <Link
                 href="/cart"
-                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+                className="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-gray-900 text-sm"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Trở về</span>
               </Link>
             </div>
           </div>
-          <div>
+
+          <div className="px-2 mb-4">
             <PromotionsList />
           </div>
-          <div className="grid lg:grid-cols-3 gap-4">
+
+          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 px-2">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Địa chỉ giao hàng */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-4">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-md flex items-center justify-center mr-2">
-                    <MapPin className="w-4 h-4 text-white" />
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-3 sm:p-4">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-md flex items-center justify-center mr-2">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                     Địa chỉ giao hàng
                   </h2>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {addresses.map((address) => (
                     <div
                       key={address._id}
                       onClick={() => setSelectedAddressId(address._id)}
-                      className={`cursor-pointer border-2 rounded-lg p-3 transition-all duration-200 ${
+                      className={`cursor-pointer border-2 rounded-lg p-2 sm:p-3 transition-all duration-200 ${
                         selectedAddressId === address._id
                           ? "border-slate-500 bg-slate-50 shadow"
                           : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                       }`}
                     >
                       <div className="flex justify-between items-start">
-                        <div className="flex-1 text-sm">
+                        <div className="flex-1 text-xs sm:text-sm">
                           <div className="flex items-center mb-1">
-                            <User className="w-4 h-4 text-gray-500 mr-2" />
-                            <p className="font-medium text-gray-900">
+                            <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mr-1 sm:mr-2" />
+                            <p className="font-medium text-gray-900 truncate">
                               {address.receiverName}
                             </p>
                             {address.isDefault && (
-                              <span className="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-medium rounded-full">
+                              <span className="ml-1 sm:ml-2 px-1.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] sm:text-xs font-medium rounded-full">
                                 Mặc định
                               </span>
                             )}
                           </div>
                           <div className="flex items-center mb-1">
-                            <Phone className="w-4 h-4 text-gray-500 mr-2" />
+                            <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mr-1 sm:mr-2" />
                             <p className="text-gray-700">{address.phone}</p>
                           </div>
                           <div className="flex items-start">
-                            <MapPin className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
-                            <p className="text-gray-700 leading-snug">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mr-1 sm:mr-2 mt-0.5" />
+                            <p className="text-gray-700 leading-snug line-clamp-2">
                               {address.addressLine}, {address.ward},{" "}
                               {address.district}, {address.city}
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditAddress(address);
-                          }}
-                          className="p-1.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => onClickDelete(address._id)}
-                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors ml-2"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </button>
+                        <div className="flex ml-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditAddress(address);
+                            }}
+                            className="p-1 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+                          >
+                            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                          </button>
+                          <button
+                            onClick={() => onClickDelete(address._id)}
+                            className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors ml-1"
+                          >
+                            <Trash className="h-3 w-3 sm:h-4 sm:w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
 
                   <button
                     onClick={() => setIsAddressModalOpen(true)}
-                    className="w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg text-slate-600 hover:text-slate-800 hover:border-slate-400 transition-colors text-sm"
+                    className="w-full flex items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3 border-2 border-dashed border-gray-300 rounded-lg text-slate-600 hover:text-slate-800 hover:border-slate-400 transition-colors text-xs sm:text-sm"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                     Thêm địa chỉ mới
                   </button>
                 </div>
               </div>
 
               {/* Phương thức thanh toán */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-4">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-md flex items-center justify-center mr-2">
-                    <CreditCard className="w-4 h-4 text-white" />
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-3 sm:p-4">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-md flex items-center justify-center mr-2">
+                    <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                     Phương thức thanh toán
                   </h2>
                 </div>
 
-                <div className="space-y-2 text-sm">
-                  <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50">
+                <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                  <label className="flex items-center p-2 sm:p-3 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50">
                     <input
                       type="radio"
                       value="COD"
                       checked={paymentMethod === "COD"}
                       onChange={() => setPaymentMethod("COD")}
-                      className="w-4 h-4 text-slate-600 border-gray-300 focus:ring-slate-500"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600 border-gray-300 focus:ring-slate-500"
                     />
-                    <div className="ml-3 flex items-center">
-                      <Truck className="w-4 h-4 text-amber-500 mr-2" />
+                    <div className="ml-2 sm:ml-3 flex items-center">
+                      <Truck className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500 mr-1 sm:mr-2" />
                       <span>Thanh toán khi nhận hàng (COD)</span>
                     </div>
                   </label>
 
-                  <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50">
+                  <label className="flex items-center p-2 sm:p-3 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50">
                     <input
                       type="radio"
                       value="BANK_TRANSFER"
                       checked={paymentMethod === "BANK_TRANSFER"}
                       onChange={() => setPaymentMethod("BANK_TRANSFER")}
-                      className="w-4 h-4 text-slate-600 border-gray-300 focus:ring-slate-500"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600 border-gray-300 focus:ring-slate-500"
                     />
-                    <div className="ml-3 flex items-center">
-                      <CreditCard className="w-4 h-4 text-blue-500 mr-2" />
+                    <div className="ml-2 sm:ml-3 flex items-center">
+                      <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500 mr-1 sm:mr-2" />
                       <span>Chuyển khoản ngân hàng</span>
                     </div>
                   </label>
                 </div>
 
                 {paymentMethod === "BANK_TRANSFER" && (
-                  <div className="mt-3 bg-yellow-50 border border-amber-200 rounded-lg p-3 text-sm">
+                  <div className="mt-2 sm:mt-3 bg-yellow-50 border border-amber-200 rounded-lg p-2 sm:p-3 text-xs sm:text-sm">
                     {bankInfoIsSet ? (
                       <div className="space-y-1">
                         <p>
@@ -487,7 +492,7 @@ export default function CheckoutPage() {
                       </div>
                     ) : (
                       <div className="flex items-center text-red-600">
-                        <Shield className="w-4 h-4 mr-2" />
+                        <Shield className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                         <p className="font-semibold">
                           Thông tin chuyển khoản chưa được cập nhật.
                         </p>
@@ -498,23 +503,23 @@ export default function CheckoutPage() {
               </div>
 
               {/* Danh sách sản phẩm */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-4">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-md flex items-center justify-center mr-2">
-                    <ShoppingBag className="w-4 h-4 text-white" />
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 p-3 sm:p-4">
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-md flex items-center justify-center mr-2">
+                    <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                     Sản phẩm đặt hàng
                   </h2>
                 </div>
 
-                <div className="space-y-3 text-sm">
+                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   {cart.map((item, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg"
+                      className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 border border-gray-200 rounded-lg"
                     >
-                      <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
                           src={`${apiUrl}${item.image}`}
                           alt={item.name}
@@ -527,19 +532,19 @@ export default function CheckoutPage() {
                         <h3 className="font-semibold text-gray-900 truncate">
                           {item.name}
                         </h3>
-                        <div className="flex gap-2 mt-0.5 text-xs">
-                          <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded-full">
+                        <div className="flex gap-1 sm:gap-2 mt-0.5 text-[10px] sm:text-xs">
+                          <span className="px-1.5 py-0.5 bg-slate-100 text-slate-800 rounded-full">
                             Size: {item.size}
                           </span>
-                          <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded-full">
+                          <span className="px-1.5 py-0.5 bg-slate-100 text-slate-800 rounded-full">
                             Màu: {item.color}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-0.5">
+                        <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5">
                           Số lượng: {item.quantity}
                         </p>
                       </div>
-                      <div className="text-right font-bold text-gray-900 text-sm">
+                      <div className="text-right font-bold text-gray-900 text-xs sm:text-sm">
                         {(item.price * item.quantity).toLocaleString("vi-VN")} ₫
                       </div>
                     </div>
@@ -551,17 +556,17 @@ export default function CheckoutPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 sticky top-4">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-gray-700 rounded-md flex items-center justify-center">
-                      <CheckCircle className="h-4 w-4 text-white" />
+                <div className="p-3 sm:p-4 border-b border-gray-200">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-1 sm:gap-2">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-slate-600 to-gray-700 rounded-md flex items-center justify-center">
+                      <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                     Tóm tắt đơn hàng
                   </h2>
                 </div>
 
-                <div className="p-4 space-y-4 text-sm">
-                  <div className="space-y-2">
+                <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 text-xs sm:text-sm">
+                  <div className="space-y-1 sm:space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">
                         Tạm tính ({cart.length} SP)
@@ -579,23 +584,23 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Promo Code Section */}
-                  <div className="border-t border-gray-200 pt-3">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div className="border-t border-gray-200 pt-2 sm:pt-3">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
                       <div className="relative flex-1">
-                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Tag className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                         <input
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
                           placeholder="Nhập mã giảm giá"
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
+                          className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-1.5 sm:py-2 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                           disabled={discount > 0}
                         />
                       </div>
                       {discount > 0 ? (
                         <button
                           onClick={resetPromoCode}
-                          className="px-3 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200"
+                          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-red-100 text-red-700 text-xs sm:text-sm font-medium rounded-md hover:bg-red-200"
                         >
                           Hủy
                         </button>
@@ -603,17 +608,19 @@ export default function CheckoutPage() {
                         <button
                           onClick={applyPromoCode}
                           disabled={isApplyingPromo || !promoCode.trim()}
-                          className="px-3 py-2 bg-slate-800 text-white text-sm font-medium rounded-md hover:bg-slate-700 disabled:bg-slate-400"
+                          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-800 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-slate-700 disabled:bg-slate-400"
                         >
                           {isApplyingPromo ? "Đang áp dụng..." : "Áp dụng"}
                         </button>
                       )}
                     </div>
                     {promoError && (
-                      <p className="text-red-500 text-xs">{promoError}</p>
+                      <p className="text-red-500 text-[10px] sm:text-xs">
+                        {promoError}
+                      </p>
                     )}
                     {discountType && (
-                      <div className="flex flex-col gap-1 text-sm">
+                      <div className="flex flex-col gap-1 text-xs sm:text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Mã giảm giá</span>
                           <span className="font-semibold text-emerald-600">
@@ -637,7 +644,7 @@ export default function CheckoutPage() {
                           </span>
                         </div>
                         {maxDiscount && discountType === "percent" && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-[10px] sm:text-xs text-gray-500">
                             (Tối đa: {maxDiscount.toLocaleString("vi-VN")} ₫)
                           </div>
                         )}
@@ -645,12 +652,12 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <div className="border-t border-gray-200 pt-3">
+                  <div className="border-t border-gray-200 pt-2 sm:pt-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-base font-bold text-gray-900">
+                      <span className="text-sm sm:text-base font-bold text-gray-900">
                         Tổng cộng
                       </span>
-                      <span className="text-base font-bold bg-gradient-to-r from-slate-800 to-gray-900 bg-clip-text text-transparent">
+                      <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-slate-800 to-gray-900 bg-clip-text text-transparent">
                         {discountedAmount.toLocaleString("vi-VN")} ₫
                       </span>
                     </div>
@@ -659,7 +666,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handleCheckout}
                     disabled={isLoading || !selectedAddressId}
-                    className={`w-full py-3 rounded-md font-semibold flex items-center justify-center gap-2 transition-all duration-200 text-sm ${
+                    className={`w-full py-2 sm:py-3 rounded-md font-semibold flex items-center justify-center gap-1 sm:gap-2 transition-all duration-200 text-xs sm:text-sm ${
                       isLoading || !selectedAddressId
                         ? "bg-gray-400 cursor-not-allowed text-white"
                         : "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow hover:shadow-md"
@@ -667,29 +674,29 @@ export default function CheckoutPage() {
                   >
                     {isLoading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         Đang xử lý...
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="h-4 w-4" />
+                        <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                         Đặt hàng ngay
                       </>
                     )}
                   </button>
 
                   {/* Trust Badges */}
-                  <div className="space-y-2 pt-3 border-t border-gray-100 text-xs text-gray-600">
+                  <div className="space-y-1 sm:space-y-2 pt-2 sm:pt-3 border-t border-gray-100 text-[10px] sm:text-xs text-gray-600">
                     <div className="flex items-center">
-                      <Shield className="w-3.5 h-3.5 mr-2 text-green-500" />
+                      <Shield className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-2 text-green-500" />
                       Thanh toán an toàn & bảo mật
                     </div>
                     <div className="flex items-center">
-                      <Truck className="w-3.5 h-3.5 mr-2 text-blue-500" />
+                      <Truck className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-2 text-blue-500" />
                       Giao hàng nhanh chóng
                     </div>
                     <div className="flex items-center">
-                      <Clock className="w-3.5 h-3.5 mr-2 text-purple-500" />
+                      <Clock className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-2 text-purple-500" />
                       Hỗ trợ 24/7
                     </div>
                   </div>

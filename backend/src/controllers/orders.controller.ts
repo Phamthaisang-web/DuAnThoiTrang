@@ -38,8 +38,11 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Lấy user từ middleware JWT đã lưu
     const user = res.locals.staff;
+    console.log("USER:", user); // debug
+    console.log("BODY:", req.body); // debug
     if (!user) throw createError(401, "Not authenticated");
-
+    console.log("Đã nhận body:", req.body);
+    console.log("Người dùng từ token:", res.locals.staff);
     const orderPayload = {
       ...req.body,
       user: user._id, // Gán user ID từ token
@@ -51,6 +54,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (error) {
+    console.error("Lỗi trong controller:", error);
     next(error);
   }
 };

@@ -6,7 +6,7 @@ import userModel from "../models/user.model";
 import addressModel from "../models/address.model";
 import nodemailer from "nodemailer";
 import { env } from "../helpers/env.helper";
-
+import createError from "http-errors";
 // Tạo transporter
 const transporter = nodemailer.createTransport({
   host: env.EMAIL_HOST,
@@ -65,12 +65,12 @@ const createOrder = async (orderData: any) => {
   const { user, items, address: addressId, promoCode } = orderData;
 
   if (!user || !addressId || !items || items.length === 0) {
-    throw new Error("User, address and items are required");
+    throw createError(400, "User, address and items are required");
   }
 
   const addressDoc = await addressModel.findById(addressId);
   if (!addressDoc) {
-    throw new Error("Address not found");
+    throw createError(404, "Address not found");
   }
 
   const address = {
@@ -88,15 +88,15 @@ const createOrder = async (orderData: any) => {
   for (const item of items) {
     const product = await productModel.findById(item.product);
     if (!product) {
-      throw new Error(`Product not found: ${item.product}`);
+      throw createError(404, `Product not found: ${item.product}`);
     }
 
     if (item.quantity < 1) {
-      throw new Error(`Invalid quantity for product: ${product.name}`);
+      throw createError(400, `Invalid quantity for product: ${product.name}`);
     }
 
     if (product.stockQuantity < item.quantity) {
-      throw new Error(`Not enough stock for product: ${product.name}`);
+      throw createError(400, `Not enough stock for product: ${product.name}`);
     }
 
     const itemTotal = product.price * item.quantity;
@@ -117,8 +117,9 @@ const createOrder = async (orderData: any) => {
       code: promoCode,
       isActive: true,
     });
+
     if (!promo || (promo.expiredAt && new Date(promo.expiredAt) < new Date())) {
-      throw new Error("Invalid or expired promo code");
+      throw createError(400, "Invalid or expired promo code");
     }
 
     discountValue =
@@ -160,83 +161,71 @@ const createOrder = async (orderData: any) => {
 
   const userDoc = await userModel.findById(user);
   if (!userDoc || !userDoc.email) {
-    throw new Error("Không tìm thấy thông tin người dùng hợp lệ để gửi email");
+    throw createError(404, "User not found or missing email");
   }
 
-  if (newOrder) {
-    const productListHtml = orderDetails
-      .map(
-        (item) => `
-      <tr>
-        <td>${item.product.name}</td>
-        <td style="text-align: center;">${item.quantity}</td>
-        <td style="text-align: center;">${item.size || "-"}</td>
-        <td style="text-align: center;">${item.color || "-"}</td>
-        <td style="text-align: right;">${item.unitPrice.toLocaleString()} đ</td>
-      </tr>
-    `
-      )
-      .join("");
+  // Gửi email xác nhận đơn hàng
+  const productListHtml = orderDetails
+    .map(
+      (item) => `
+    <tr>
+      <td>${item.product.name}</td>
+      <td style="text-align: center;">${item.quantity}</td>
+      <td style="text-align: center;">${item.size || "-"}</td>
+      <td style="text-align: center;">${item.color || "-"}</td>
+      <td style="text-align: right;">${item.unitPrice.toLocaleString()} đ</td>
+    </tr>
+  `
+    )
+    .join("");
 
-    const mailOptions = {
-      from: env.EMAIL_ACCOUNT,
-      to: userDoc.email,
-      subject: `Xác nhận đơn hàng từ LUXURY FASHION - ${new Date().toLocaleDateString()}`,
-      html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <h2>Xin chào ${userDoc.fullName},</h2>
-
-        <p>Cảm ơn bạn đã đặt hàng tại <strong>LUXURY FASHION</strong>! 🎉</p>
-
-        <p>Dưới đây là thông tin đơn hàng của bạn:</p>
-
-        <p><strong>Ngày đặt hàng:</strong> ${new Date().toLocaleString()}</p>
-
-        <table border="1" cellspacing="0" cellpadding="8" width="100%" style="border-collapse: collapse;">
-          <thead style="background-color: #f2f2f2;">
-            <tr>
-              <th>Sản phẩm</th>
-              <th>Số lượng</th>
-              <th>Kích thước</th>
-              <th>Màu sắc</th>
-              <th>Đơn giá</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${productListHtml}
-          </tbody>
-        </table>
-
-        <p><strong>Tạm tính:</strong> ${totalAmount.toLocaleString()} đ</p>
-        ${
-          discountValue > 0
-            ? `<p><strong>Giảm giá:</strong> -${discountValue.toLocaleString()} đ</p>`
-            : ""
-        }
-        <p><strong>Tổng thanh toán:</strong> ${finalAmount.toLocaleString()} đ</p>
-
-
-        <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ LUXURY FASHION</strong></p>
-
-        <hr style="margin-top: 40px;" />
-        <p style="font-size: 12px; color: #888;">
-          Đây là email tự động. Vui lòng không trả lời email này.
-        </p>
-      </div>
-    `,
-    };
-
-    transporter.sendMail(
-      mailOptions,
-      (error: Error | null, info: nodemailer.SentMessageInfo) => {
-        if (error) {
-          console.error("Lỗi gửi email:", error);
-        } else {
-          console.log("Đã gửi email xác nhận đơn hàng:", info.response);
-        }
+  const mailOptions = {
+    from: env.EMAIL_ACCOUNT,
+    to: userDoc.email,
+    subject: `Xác nhận đơn hàng từ LUXURY FASHION - ${new Date().toLocaleDateString()}`,
+    html: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <h2>Xin chào ${userDoc.fullName},</h2>
+      <p>Cảm ơn bạn đã đặt hàng tại <strong>LUXURY FASHION</strong>! 🎉</p>
+      <p><strong>Ngày đặt hàng:</strong> ${new Date().toLocaleString()}</p>
+      <table border="1" cellspacing="0" cellpadding="8" width="100%" style="border-collapse: collapse;">
+        <thead style="background-color: #f2f2f2;">
+          <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Kích thước</th>
+            <th>Màu sắc</th>
+            <th>Đơn giá</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${productListHtml}
+        </tbody>
+      </table>
+      <p><strong>Tạm tính:</strong> ${totalAmount.toLocaleString()} đ</p>
+      ${
+        discountValue > 0
+          ? `<p><strong>Giảm giá:</strong> -${discountValue.toLocaleString()} đ</p>`
+          : ""
       }
-    );
-  }
+      <p><strong>Tổng thanh toán:</strong> ${finalAmount.toLocaleString()} đ</p>
+      <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ LUXURY FASHION</strong></p>
+      <hr style="margin-top: 40px;" />
+      <p style="font-size: 12px; color: #888;">
+        Đây là email tự động. Vui lòng không trả lời email này.
+      </p>
+    </div>
+  `,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Lỗi gửi email:", error);
+    } else {
+      console.log("Đã gửi email xác nhận đơn hàng:", info.response);
+    }
+  });
+
   return {
     order: newOrder,
     details: savedDetails,
