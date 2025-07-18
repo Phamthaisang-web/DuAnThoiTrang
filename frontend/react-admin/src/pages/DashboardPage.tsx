@@ -181,14 +181,7 @@ export default function DashboardPage() {
           <Card
             title={
               <div className="flex justify-between items-center">
-                <span>
-                  📈 Doanh thu theo{" "}
-                  {filterType === "date"
-                    ? "ngày"
-                    : filterType === "month"
-                    ? "tháng"
-                    : "năm"}
-                </span>
+                <span>📈 Doanh thu theo </span>
                 <div className="flex gap-2">
                   <Select
                     value={filterType}
