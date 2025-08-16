@@ -4,13 +4,13 @@ import productService from "../services/product.service";
 import brandModel from "../models/brand.model";
 import categoryModel from "../models/category.model";
 
-// ✅ Khởi tạo SDK OpenRouter
+
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: "https://openrouter.ai/api/v1",
   defaultHeaders: {
-    "HTTP-Referer": "https://your-app-testing.co", // ⚠️ Thay bằng domain thật
-    "X-Title": "ThoiTrang", // ⚠️ Tên app của bạn
+    "HTTP-Referer": "https://your-app-testing.co", 
+    "X-Title": "ThoiTrang",
   },
 });
 

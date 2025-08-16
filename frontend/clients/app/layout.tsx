@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="">
+        <div className="bg-white text-black">
           <CartProvider>
             <Header />
             <main className="max-w-screen-xl mx-auto px-4 ">{children}</main>
