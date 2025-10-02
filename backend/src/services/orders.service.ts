@@ -57,7 +57,7 @@ const getOrderById = async (id: string) => {
   const order = await orderModel
     .findById(id)
     .populate("user", "fullName email");
-  if (!order) throw new Error("Order not found");
+  if (!order) throw createError("Order not found");
   return order;
 };
 
@@ -91,12 +91,19 @@ const createOrder = async (orderData: any) => {
       throw createError(404, `Product not found: ${item.product}`);
     }
 
+    if (product.stockQuantity === 0) {
+      throw createError(400, `Sản phẩm "${product.name}" đã hết hàng`);
+    }
+
     if (item.quantity < 1) {
-      throw createError(400, `Invalid quantity for product: ${product.name}`);
+      throw createError(
+        400,
+        `Số lượng không hợp lệ cho sản phẩm: ${product.name}`
+      );
     }
 
     if (product.stockQuantity < item.quantity) {
-      throw createError(400, `Not enough stock for product: ${product.name}`);
+      throw createError(400, `Không đủ hàng cho sản phẩm: ${product.name}`);
     }
 
     const itemTotal = product.price * item.quantity;
@@ -244,7 +251,7 @@ const updateOrder = async (id: string, orderData: any) => {
   ];
 
   if (!orderData.status || !allowedStatuses.includes(orderData.status)) {
-    throw new Error("Trạng thái không hợp lệ");
+    throw createError("Trạng thái không hợp lệ");
   }
 
   const order = await orderModel.findByIdAndUpdate(
@@ -255,13 +262,13 @@ const updateOrder = async (id: string, orderData: any) => {
     }
   );
 
-  if (!order) throw new Error("Không tìm thấy đơn hàng");
+  if (!order) throw createError("Không tìm thấy đơn hàng");
 
   return order;
 };
 const deleteOrder = async (id: string) => {
   const order = await orderModel.findByIdAndDelete(id);
-  if (!order) throw new Error("Order not found");
+  if (!order) throw createError("Order not found");
 
   const details = await orderDetailModel.find({ order: id });
 
@@ -282,7 +289,7 @@ const getOrdersByUserId = async (userId: string) => {
     .populate("user", "fullName email phone");
 
   if (!orders || orders.length === 0) {
-    throw new Error("No orders found for this user");
+    throw createError("No orders found for this user");
   }
   return orders;
 };

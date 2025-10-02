@@ -14,6 +14,7 @@ const getAllCategories = async (
     next(error);
   }
 };
+
 const getByID = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const category = await categoriesService.getCategoryById(req.params.id);
