@@ -21,10 +21,11 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Crown,
 } from "lucide-react";
 import Link from "next/link";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 interface PasswordData {
   currentPassword: string;
   newPassword: string;
@@ -209,12 +210,12 @@ export default function UserPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-8 text-center max-w-md w-full transform hover:scale-105 transition-all duration-300">
-          <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-            <Shield className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white border border-gray-200 rounded-lg shadow p-8 text-center max-w-md w-full">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <Shield className="w-8 h-8 text-gray-600" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-3">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Chưa đăng nhập
           </h2>
           <p className="text-gray-600 mb-6">
@@ -222,7 +223,7 @@ export default function UserPage() {
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2.5 px-4 rounded-lg transition-colors"
           >
             Đi đến trang đăng nhập
           </button>
@@ -241,90 +242,64 @@ export default function UserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto pt-8">
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform hover:scale-[1.01] transition-all duration-500">
-          {/* Header */}
-          <div className="bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-green-400 to-blue-500 rounded-full blur-2xl"></div>
-            </div>
-
-            <div className="absolute top-4 right-4 flex gap-2">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-medium flex items-center transition-all duration-300 transform hover:scale-110 ${
-                  user.role === "admin"
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
-                    : "bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30"
-                }`}
-              >
-                {user.role === "admin" ? (
-                  <>
-                    <Crown className="w-3 h-3 mr-1" />
-                    Quản trị viên
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-3 h-3 mr-1" />
-                    Người dùng
-                  </>
-                )}
-              </span>
-
-              {!user.isActive && (
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white flex items-center shadow-lg animate-pulse">
-                  <XCircle className="w-3 h-3 mr-1" />
-                  Chưa kích hoạt
-                </span>
-              )}
-            </div>
-
-            <div className="relative flex flex-col items-center text-center">
-              <div className="relative mb-4 group">
-                <div className="w-24 h-24 border-4 border-white/30 rounded-full bg-gradient-to-br from-white to-gray-100 text-gray-800 flex items-center justify-center text-xl font-bold shadow-2xl group-hover:scale-110 transition-all duration-300">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+          <div className="bg-gray-900 p-8 text-white">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white rounded-full text-gray-900 flex items-center justify-center text-lg font-semibold">
                   {getInitials(user.fullName)}
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg animate-bounce">
-                  <CheckCircle className="w-4 h-4 text-white" />
+                <div>
+                  <h1 className="text-2xl font-semibold mb-1">
+                    {user.fullName}
+                  </h1>
+                  <p className="text-gray-400 text-sm">ID: {user._id}</p>
                 </div>
               </div>
 
-              <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-                {user.fullName}
-              </h1>
-              <p className="text-gray-300 text-sm mb-2">
-                Thông tin tài khoản cá nhân
-              </p>
-              <p className="text-gray-400 text-xs font-mono bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                ID: {user._id}
-              </p>
+              <div className="flex gap-2">
+                <span
+                  className={`px-3 py-1 rounded-md text-xs font-medium ${
+                    user.role === "admin"
+                      ? "bg-yellow-500 text-white"
+                      : "bg-gray-700 text-gray-200"
+                  }`}
+                >
+                  {user.role === "admin" ? "Quản trị viên" : "Người dùng"}
+                </span>
+
+                {!user.isActive && (
+                  <span className="px-3 py-1 rounded-md text-xs font-medium bg-red-500 text-white">
+                    Chưa kích hoạt
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
+          <div className="p-4 bg-gray-50 border-b border-gray-200">
             <Link
               href="/orderdetail"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-300 flex items-center justify-center h-12 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center h-11"
             >
               <Calendar className="w-4 h-4 mr-2" />
               Đơn hàng của bạn
             </Link>
           </div>
 
-          {/* Content */}
           <div className="p-8">
             {passwordMode ? (
               <div className="space-y-6">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl transform hover:scale-110 transition-all duration-300">
-                    <Lock className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-6 h-6 text-gray-700" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
                     Đổi mật khẩu
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm">
                     Cập nhật mật khẩu để bảo mật tài khoản tốt hơn
                   </p>
                 </div>
@@ -350,7 +325,7 @@ export default function UserPage() {
                       >
                         {field.label}
                       </label>
-                      <div className="relative group">
+                      <div className="relative">
                         <input
                           id={field.id}
                           name={field.id}
@@ -363,11 +338,11 @@ export default function UserPage() {
                           }
                           value={passwordData[field.id as keyof PasswordData]}
                           onChange={handlePasswordChange}
-                          className={`w-full px-3 py-3 border-2 ${
+                          className={`w-full px-3 py-2.5 border ${
                             passwordErrors[field.id as keyof PasswordErrors]
-                              ? "border-red-400 bg-red-50 focus:border-red-500"
-                              : "border-gray-200 focus:border-blue-500 hover:border-gray-300"
-                          } rounded-xl outline-none pr-10 transition-all duration-300 focus:shadow-lg`}
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-300 focus:border-gray-900"
+                          } rounded-lg outline-none pr-10 transition-colors`}
                         />
                         <button
                           type="button"
@@ -376,7 +351,7 @@ export default function UserPage() {
                               field.type as keyof typeof showPassword
                             )
                           }
-                          className="absolute right-3 top-3 text-gray-400 hover:text-blue-600 transition-colors duration-300 transform hover:scale-110"
+                          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                         >
                           {showPassword[
                             field.type as keyof typeof showPassword
@@ -388,8 +363,8 @@ export default function UserPage() {
                         </button>
                       </div>
                       {passwordErrors[field.id as keyof PasswordErrors] && (
-                        <p className="text-red-500 text-sm mt-1 flex items-center bg-red-50 p-3 rounded-xl border border-red-200 animate-pulse">
-                          <XCircle className="w-4 h-4 mr-2" />
+                        <p className="text-red-600 text-sm flex items-center">
+                          <XCircle className="w-4 h-4 mr-1" />
                           {passwordErrors[field.id as keyof PasswordErrors]}
                         </p>
                       )}
@@ -397,12 +372,12 @@ export default function UserPage() {
                   ))}
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-3 pt-4">
                   <button
                     onClick={handleChangePassword}
                     disabled={isChangingPassword}
-                    className={`flex-1 h-12 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                      isChangingPassword ? "opacity-70 cursor-not-allowed" : ""
+                    className={`flex-1 h-11 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center ${
+                      isChangingPassword ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     {isChangingPassword ? (
@@ -427,7 +402,7 @@ export default function UserPage() {
                         confirmPassword: "",
                       });
                     }}
-                    className="flex-1 h-12 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-105"
+                    className="flex-1 h-11 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors flex items-center justify-center"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Hủy
@@ -437,13 +412,13 @@ export default function UserPage() {
             ) : editMode ? (
               <div className="space-y-6">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl transform hover:scale-110 transition-all duration-300">
-                    <Edit3 className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <Edit3 className="w-6 h-6 text-gray-700" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
                     Chỉnh sửa thông tin
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm">
                     Cập nhật thông tin cá nhân của bạn
                   </p>
                 </div>
@@ -456,15 +431,15 @@ export default function UserPage() {
                     >
                       Họ và tên
                     </label>
-                    <div className="relative group">
-                      <User className="absolute left-3 top-3 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                       <input
                         id="fullName"
                         name="fullName"
                         type="text"
                         value={updatedUser.fullName}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-3 py-3 border-2 border-gray-200 focus:border-blue-500 hover:border-gray-300 rounded-xl outline-none transition-all duration-300 focus:shadow-lg"
+                        className="w-full pl-10 pr-3 py-2.5 border border-gray-300 focus:border-gray-900 rounded-lg outline-none transition-colors"
                       />
                     </div>
                   </div>
@@ -476,26 +451,26 @@ export default function UserPage() {
                     >
                       Số điện thoại
                     </label>
-                    <div className="relative group">
-                      <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                       <input
                         id="phone"
                         name="phone"
                         type="text"
                         value={updatedUser.phone}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-3 py-3 border-2 border-gray-200 focus:border-blue-500 hover:border-gray-300 rounded-xl outline-none transition-all duration-300 focus:shadow-lg"
+                        className="w-full pl-10 pr-3 py-2.5 border border-gray-300 focus:border-gray-900 rounded-lg outline-none transition-colors"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-3 pt-4">
                   <button
                     onClick={handleUpdateUser}
                     disabled={isUpdatingProfile}
-                    className={`flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                      isUpdatingProfile ? "opacity-70 cursor-not-allowed" : ""
+                    className={`flex-1 h-11 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center ${
+                      isUpdatingProfile ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     {isUpdatingProfile ? (
@@ -513,7 +488,7 @@ export default function UserPage() {
 
                   <button
                     onClick={() => setEditMode(false)}
-                    className="flex-1 h-12 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-105"
+                    className="flex-1 h-11 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors flex items-center justify-center"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Hủy
@@ -522,18 +497,17 @@ export default function UserPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {/* User Info Grid */}
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <Mail className="w-5 h-5 text-white" />
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-gray-700" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-blue-600 mb-1">
+                        <p className="text-sm font-medium text-gray-600 mb-1">
                           Email
                         </p>
-                        <p className="font-semibold text-gray-800 truncate">
+                        <p className="font-medium text-gray-900 truncate">
                           {user.email}
                         </p>
                       </div>
@@ -541,16 +515,16 @@ export default function UserPage() {
                   </div>
 
                   {user.phone && (
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Phone className="w-5 h-5 text-white" />
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <Phone className="w-5 h-5 text-gray-700" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-green-600 mb-1">
+                          <p className="text-sm font-medium text-gray-600 mb-1">
                             Số điện thoại
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-medium text-gray-900">
                             {user.phone}
                           </p>
                         </div>
@@ -558,38 +532,22 @@ export default function UserPage() {
                     </div>
                   )}
 
-                  <div
-                    className={`${
-                      user.isActive
-                        ? "bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200"
-                        : "bg-gradient-to-br from-red-50 to-red-100 border-red-200"
-                    } border-2 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 hover:shadow-lg`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
-                          user.isActive
-                            ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                            : "bg-gradient-to-br from-red-500 to-red-600"
-                        }`}
-                      >
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                         {user.isActive ? (
-                          <CheckCircle className="w-5 h-5 text-white" />
+                          <CheckCircle className="w-5 h-5 text-green-600" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-white" />
+                          <XCircle className="w-5 h-5 text-red-600" />
                         )}
                       </div>
                       <div className="flex-1">
-                        <p
-                          className={`text-sm font-medium mb-1 ${
-                            user.isActive ? "text-emerald-600" : "text-red-600"
-                          }`}
-                        >
+                        <p className="text-sm font-medium text-gray-600 mb-1">
                           Trạng thái tài khoản
                         </p>
                         <p
-                          className={`font-semibold ${
-                            user.isActive ? "text-emerald-700" : "text-red-700"
+                          className={`font-medium ${
+                            user.isActive ? "text-green-600" : "text-red-600"
                           }`}
                         >
                           {user.isActive ? "Đã kích hoạt" : "Chưa kích hoạt"}
@@ -599,16 +557,16 @@ export default function UserPage() {
                   </div>
 
                   {user.createdAt && (
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 transform hover:scale-105 transition-all duration-300 hover:shadow-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Calendar className="w-5 h-5 text-white" />
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-gray-700" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-600 mb-1">
+                          <p className="text-sm font-medium text-gray-600 mb-1">
                             Ngày tạo tài khoản
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-medium text-gray-900">
                             {new Date(user.createdAt).toLocaleDateString(
                               "vi-VN",
                               {
@@ -624,12 +582,11 @@ export default function UserPage() {
                   )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="pt-6 border-t-2 border-gray-200">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                <div className="pt-6 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setEditMode(true)}
-                      className="flex-1 h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="flex-1 h-11 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
                     >
                       <Edit3 className="w-4 h-4 mr-2" />
                       Chỉnh sửa thông tin
@@ -637,7 +594,7 @@ export default function UserPage() {
 
                     <button
                       onClick={() => setPasswordMode(true)}
-                      className="flex-1 h-12 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="flex-1 h-11 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors flex items-center justify-center"
                     >
                       <Lock className="w-4 h-4 mr-2" />
                       Đổi mật khẩu
@@ -645,7 +602,7 @@ export default function UserPage() {
 
                     <button
                       onClick={handleLogout}
-                      className="flex-1 h-12 border-2 border-gray-800 hover:bg-gray-800 hover:text-white text-gray-800 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="flex-1 h-11 border border-gray-900 hover:bg-gray-900 hover:text-white text-gray-900 rounded-lg font-medium transition-colors flex items-center justify-center"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Đăng xuất
@@ -657,17 +614,11 @@ export default function UserPage() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-6 bg-white border border-gray-200 rounded-2xl shadow-lg p-6 text-center transform hover:scale-105 transition-all duration-300">
-          <div className="flex items-center justify-center space-x-2 text-gray-600 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl flex items-center justify-center shadow-lg">
-              <User className="w-4 h-4 text-white" />
-            </div>
-            <p className="text-sm font-medium text-gray-700">
-              Tài khoản được tạo và quản lý bởi hệ thống
-            </p>
-          </div>
-          <p className="text-xs text-gray-500">
+        <div className="mt-6 bg-white border border-gray-200 rounded-lg shadow-sm p-6 text-center">
+          <p className="text-sm text-gray-600">
+            Tài khoản được tạo và quản lý bởi hệ thống
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
             Liên hệ quản trị viên nếu cần hỗ trợ
           </p>
         </div>

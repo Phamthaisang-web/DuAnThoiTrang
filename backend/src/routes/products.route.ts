@@ -9,7 +9,7 @@ router.get("/products", productsController.getAllProducts);
 // Get product by ID
 router.get(
   "/products/:id",
-  
+
   productsController.getByID
 );
 // Create a new product
@@ -27,10 +27,6 @@ router.put(
   productsController.update
 );
 // Delete a product
-router.delete(
-  "/products/:id",
-  authenticateToken,
-  productsController.remove
-);
+router.delete("/products/:id", authenticateToken, productsController.remove);
 // Export the router
 export default router;

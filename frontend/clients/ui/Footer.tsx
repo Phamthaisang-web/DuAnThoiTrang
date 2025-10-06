@@ -27,7 +27,7 @@ export default function Footer() {
     {
       icon: Facebook,
       name: "Facebook",
-      href: "https://www.facebook.com/pt.sang.71",
+      href: "https://www.facebook.com/phuoctannn",
       color: "hover:text-blue-600",
     },
     {

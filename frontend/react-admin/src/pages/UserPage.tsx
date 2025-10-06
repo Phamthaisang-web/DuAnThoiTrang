@@ -33,16 +33,20 @@ interface User {
 
 const UserPage: React.FC = () => {
   const navigate = useNavigate();
-  const { tokens, user } = useAuthStore(); // ✅ Lấy user đúng cách
+  const { tokens, user } = useAuthStore();
   const [form] = Form.useForm();
+  const [otpForm] = Form.useForm();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [pendingUser, setPendingUser] = useState<any>(null);
 
   const currentUserId = user?._id;
 
+  // 🔹 Kiểm tra token
   useEffect(() => {
     if (!tokens?.accessToken) {
       message.warning("Vui lòng đăng nhập");
@@ -52,52 +56,85 @@ const UserPage: React.FC = () => {
     }
   }, [tokens]);
 
+  // 🔹 Lấy danh sách người dùng
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${env.API_URL}/api/v1/users`, {
         headers: { Authorization: `Bearer ${tokens!.accessToken}` },
       });
-
       const allUsers = res.data.data.users;
-
-      // ✅ Loại bỏ chính mình khỏi danh sách
       const filteredUsers = allUsers.filter(
         (u: User) => u._id !== currentUserId
       );
-
       setUsers(filteredUsers);
-    } catch (err) {
+    } catch {
       message.error("Lỗi khi lấy danh sách người dùng");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔹 Mở modal thêm người dùng
   const handleAdd = () => {
     form.resetFields();
     setIsModalOpen(true);
   };
-
-  const handleSave = async () => {
+  // 🔹 Gửi OTP đến email
+  const handleSendOtp = async () => {
     try {
       const values = await form.validateFields();
       setSaving(true);
 
-      await axios.post(`${env.API_URL}/api/v1/users`, values, {
-        headers: { Authorization: `Bearer ${tokens!.accessToken}` },
+      // ✅ Gọi đúng API backend: /users/request-otp
+      await axios.post(`${env.API_URL}/api/v1/users/request-otp`, {
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+        role: values.role,
       });
-      message.success("Tạo người dùng mới thành công");
 
-      setIsModalOpen(false);
-      fetchUsers();
-    } catch {
-      message.error("Lỗi khi lưu người dùng");
+      message.success("✅ Mã OTP đã được gửi đến email người dùng");
+      setPendingUser(values);
+      setOtpModalOpen(true);
+    } catch (err: any) {
+      console.error("Lỗi gửi OTP:", err);
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "❌ Không thể gửi OTP, vui lòng kiểm tra email hoặc API";
+      message.error(errorMsg);
     } finally {
       setSaving(false);
     }
   };
 
+  // 🔹 Xác minh OTP và tạo tài khoản
+  const handleVerifyOtp = async () => {
+    try {
+      const { otp } = await otpForm.validateFields();
+      setSaving(true);
+
+      // ✅ Gọi đúng API backend: /users/verify-otp
+      await axios.post(`${env.API_URL}/api/v1/users/verify-otp`, {
+        ...pendingUser,
+        otp,
+      });
+
+      message.success("🎉 Tài khoản đã được tạo thành công!");
+      setOtpModalOpen(false);
+      setIsModalOpen(false);
+      fetchUsers();
+    } catch (err: any) {
+      console.error("Lỗi xác minh OTP:", err);
+      message.error(err.response?.data?.message || "❌ Mã OTP không hợp lệ");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🔹 Bật/tắt trạng thái hoạt động
   const handleToggleActive = async (checked: boolean, user: User) => {
     if (user._id === currentUserId) {
       message.warning("Không thể thay đổi trạng thái chính mình");
@@ -162,32 +199,36 @@ const UserPage: React.FC = () => {
         pagination={{ pageSize: 10 }}
       />
 
+      {/* Modal nhập thông tin user */}
       <Modal
         open={isModalOpen}
         title="Thêm người dùng"
         onCancel={() => setIsModalOpen(false)}
-        onOk={handleSave}
+        onOk={handleSendOtp}
         confirmLoading={saving}
+        okText="Gửi mã OTP"
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="fullName"
             label="Họ tên"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, type: "email" }]}
+            rules={[
+              { required: true, type: "email", message: "Email không hợp lệ" },
+            ]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="password"
             label="Mật khẩu"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
           >
             <Input.Password />
           </Form.Item>
@@ -199,6 +240,26 @@ const UserPage: React.FC = () => {
               <Option value="user">User</Option>
               <Option value="admin">Admin</Option>
             </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Modal nhập mã OTP */}
+      <Modal
+        open={otpModalOpen}
+        title="Nhập mã OTP để xác minh"
+        onCancel={() => setOtpModalOpen(false)}
+        onOk={handleVerifyOtp}
+        confirmLoading={saving}
+        okText="Xác minh OTP"
+      >
+        <Form form={otpForm} layout="vertical">
+          <Form.Item
+            name="otp"
+            label="Mã OTP"
+            rules={[{ required: true, message: "Vui lòng nhập mã OTP" }]}
+          >
+            <Input maxLength={6} placeholder="Nhập mã OTP 6 chữ số" />
           </Form.Item>
         </Form>
       </Modal>

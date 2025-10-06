@@ -4,12 +4,11 @@ import productService from "../services/product.service";
 import brandModel from "../models/brand.model";
 import categoryModel from "../models/category.model";
 
-
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: "https://openrouter.ai/api/v1",
   defaultHeaders: {
-    "HTTP-Referer": "https://your-app-testing.co", 
+    "HTTP-Referer": "https://your-app-testing.co",
     "X-Title": "ThoiTrang",
   },
 });
@@ -20,8 +19,10 @@ export const askProductAI = async (
 ): Promise<void> => {
   try {
     const { question } = req.body;
+    console.log("Câu hỏi từ client:", question);
 
     if (!question || typeof question !== "string") {
+      console.log("Sử dụng API Key:", process.env.OPENAI_API_KEY);
       res.status(400).json({ error: "❌ Câu hỏi không hợp lệ." });
       return;
     }
