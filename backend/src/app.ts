@@ -13,6 +13,7 @@ import addresses from "./routes/addresses.route";
 import aiRoutes from "./routes/ai.route";
 import cors from "cors";
 import path from "path";
+import errorHandler from "./middlewares/error.middleware";
 
 const app = express();
 app.use(cors());
@@ -34,4 +35,5 @@ app.use("/api/v1/", addresses);
 app.use("/api/v1/", aiRoutes);
 app.use("/api/v1/statistics", statisticsRouter);
 app.use(express.static(path.join(__dirname, "../public")));
+app.use(errorHandler);
 export default app;
